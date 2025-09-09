@@ -5,11 +5,716 @@
 {% bootstrap_javascript %}
 {% load widget_tweaks %}
 {% load humanize %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/account.css' %}">
 <script>
     window.DELETE_ACCOUNT_URL = "{% url 'delete_account' %}";
 </script>
+<style>
+    /* Account Dashboard Specific Styles */
+  .dashboard-container {
+    padding: 2rem;
+    max-width: 100%;
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(20px);
+  }
+
+  .dashboard-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .add-account-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(var(--accent-rgb, 74, 168, 255), 0.3);
+  }
+
+  .add-account-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(var(--accent-rgb, 74, 168, 255), 0.4);
+    filter: brightness(1.1);
+  }
+
+  .stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    opacity: 0;
+    transition: var(--transition);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .stat-card:hover::before {
+    opacity: 1;
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: white;
+  }
+
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .account-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .account-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--account-gradient);
+    transition: var(--transition);
+  }
+
+  .account-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .account-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .account-type-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: white;
+    background: var(--account-gradient);
+  }
+
+     .account-menu {
+        position: relative;
+    }
+
+    .account-menu-btn {
+        background: none;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .account-menu-btn:hover {
+        background: #f8fafc;
+        color: #3b82f6;
+    }
+
+    .account-menu-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        padding: 8px 0;
+        min-width: 150px;
+        z-index: 100;
+        display: none;
+    }
+
+    .account-menu-dropdown.show {
+        display: block;
+        animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .account-menu-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+     .edit-account-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .edit-account-modal.show {
+        display: flex;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
+
+    .modal-header {
+        margin-bottom: 25px;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #64748b;
+        transition: color 0.2s ease;
+    }
+
+    .modal-close:hover {
+        color: #ef4444;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        background: white;
+        cursor: pointer;
+        transition: border-color 0.2s ease;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 25px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .btn-secondary:hover {
+        background: #d1d5db;
+    }
+
+    /* Toast notification */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1100;
+    }
+
+    .toast {
+        background: white;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+        transform: translateX(0);
+    }
+
+    .toast-success {
+        border-left: 4px solid #10b981;
+    }
+
+    .toast-error {
+        border-left: 4px solid #ef4444;
+    }
+
+    .toast-icon {
+        font-size: 1.2rem;
+    }
+
+    .toast-success .toast-icon {
+        color: #10b981;
+    }
+
+    .toast-error .toast-icon {
+        color: #ef4444;
+    }
+
+    .toast-message {
+        font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .accounts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-content {
+            width: 95%;
+            padding: 20px;
+        }
+
+        .modal-footer {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+
+    .account-menu-item:hover {
+        background: #737577;
+    }
+
+    .account-menu-item.edit {
+        color: #3b82f6;
+    }
+
+    .account-menu-item.delete {
+        color: #ef4444;
+    }
+
+  .account-info h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .account-number {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-family: 'Monaco', 'Menlo', monospace;
+    letter-spacing: 1px;
+  }
+
+  .account-balance {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .balance-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .balance-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--success);
+  }
+
+  .account-meta {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* Account Type Colors */
+  .account-card[data-type="savings"] {
+    --account-gradient: linear-gradient(135deg, #007bff, #0056b3);
+  }
+
+  .account-card[data-type="current"] {
+    --account-gradient: linear-gradient(135deg, #ff9800, #f57c00);
+  }
+
+  .account-card[data-type="wallet"] {
+    --account-gradient: linear-gradient(135deg, #4caf50, #388e3c);
+  }
+
+  .account-card[data-type="investment"] {
+    --account-gradient: linear-gradient(135deg, #9c27b0, #7b1fa2);
+  }
+
+  .account-card[data-type="credit"] {
+    --account-gradient: linear-gradient(135deg, #f44336, #d32f2f);
+  }
+
+  /* Enhanced Modal Styles */
+  .modal-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+  }
+
+  .modal-header {
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .modal-title {
+    font-weight: 600;
+  }
+
+  .btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+  }
+
+  .modal-body {
+    padding: 2rem;
+    color: var(--text);
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control, .form-select {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 0.75rem;
+    transition: var(--transition);
+  }
+
+  .form-control:focus, .form-select:focus {
+    background: var(--card);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 74, 168, 255), 0.1);
+    color: var(--text);
+  }
+
+  .form-control::placeholder {
+    color: var(--muted);
+  }
+
+  .modal-footer {
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  .btn-secondary {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none;
+    color: white;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 2rem 0;
+  }
+  .empty-state-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+  }
+
+  .empty-state h3 {
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state p {
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .dashboard-container {
+      padding: 1rem;
+    }
+
+    .dashboard-header {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .account-menu-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 24px;
+        background: rgb(39, 32, 32);
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        padding: 8px 0;
+        min-width: 150px;
+        z-index: 100;
+        display: none;
+    }
+
+    .dashboard-title {
+      font-size: 1.5rem;
+    }
+
+    .accounts-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stats-overview {
+      grid-template-columns: 1fr;
+    }
+
+    .account-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .account-card {
+    animation: slideUp 0.4s ease-out;
+    animation-fill-mode: both;
+  }
+
+  .account-card:nth-child(1) { animation-delay: 0.1s; }
+  .account-card:nth-child(2) { animation-delay: 0.2s; }
+  .account-card:nth-child(3) { animation-delay: 0.3s; }
+  .account-card:nth-child(4) { animation-delay: 0.4s; }
+  .account-card:nth-child(5) { animation-delay: 0.5s; }
+  .account-card:nth-child(6) { animation-delay: 0.6s; }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Error handling */
+  .alert {
+    border-radius: var(--radius);
+    border: none;
+    margin-bottom: 1rem;
+  }
+
+  .alert-danger {
+    background: linear-gradient(135deg, #ff6b6b, #ff5252);
+    color: white;
+  }
+
+  .is-invalid {
+    border-color: var(--danger) !important;
+  }
+
+  .invalid-feedback {
+    color: var(--danger);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+
+</style>
 <div class="dashboard-container">
   <!-- Error Display -->
   {% if form.errors %}
@@ -359,6 +1064,336 @@
     {{ accounts_json|json_script:"accounts-json"|safe }}
 </script>
 
- <script src="{% static 'js/account.js' %}"></script>
+ <script>
+  // Enhanced form interactions
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus first form field when modal opens
+    const modal = document.getElementById('addAccountModal');
+    if (modal) {
+        modal.addEventListener('shown.bs.modal', function() {
+            const firstInput = modal.querySelector('select, input');
+            if (firstInput) firstInput.focus();
+        });
+
+        // Add loading state to form submission
+        const form = modal.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Saving...';
+                }
+            });
+        }
+    }
+
+    // Account card interactions
+    const accountCards = document.querySelectorAll('.account-card');
+    accountCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Add click animation
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+
+    // Theme-aware date picker
+    const dateInputs = document.querySelectorAll('input[type="date"], input[type="datetime-local"]');
+    dateInputs.forEach(input => {
+        const theme = document.documentElement.getAttribute('data-theme');
+        if (theme === 'dark' || theme === 'neon') {
+            input.style.colorScheme = 'dark';
+        }
+    });
+
+    // Add account ID data attribute to all account cards
+    const accountCardsWithId = document.querySelectorAll('.account-card');
+    accountCardsWithId.forEach((card, index) => {
+        card.setAttribute('data-account-id', index + 1);
+    });
+
+    // Initialize currency formatting
+    const balanceInput = document.querySelector('input[name="balance"]');
+    if (balanceInput) {
+        balanceInput.addEventListener('input', function() {
+            formatCurrency(this);
+        });
+    }
+
+    // Initialize edit modal event listeners
+    const editModal = document.getElementById('editAccountModal');
+    if (editModal) {
+        editModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+    }
+
+    // Initialize edit form submission
+    const editForm = document.getElementById('editAccountForm');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleEditFormSubmission(this);
+        });
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeEditModal();
+        }
+    });
+});
+
+// Format currency input
+function formatCurrency(input) {
+    let value = input.value.replace(/[^\d.]/g, '');
+    let parts = value.split('.');
+    if (parts.length > 2) {
+        parts = [parts[0], parts.slice(1).join('')];
+    }
+    if (parts[1] && parts[1].length > 2) {
+        parts[1] = parts[1].substring(0, 2);
+    }
+    input.value = parts.join('.');
+}
+
+// Toggle account menu
+function toggleMenu(button) {
+    const menu = button.nextElementSibling;
+    const isShowing = menu.classList.contains('show');
+    
+    // Close all other menus
+    document.querySelectorAll('.account-menu-dropdown.show').forEach(dropdown => {
+        if (dropdown !== menu) {
+            dropdown.classList.remove('show');
+        }
+    });
+    
+    // Toggle current menu
+    if (isShowing) {
+        menu.classList.remove('show');
+    } else {
+        menu.classList.add('show');
+    }
+    
+    // Close menu when clicking outside
+    if (!isShowing) {
+        const clickHandler = (e) => {
+            if (!menu.contains(e.target) && e.target !== button) {
+                menu.classList.remove('show');
+                document.removeEventListener('click', clickHandler);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', clickHandler), 0);
+    }
+}
+
+// Open edit modal with account data
+function openEditModal(accountId) {
+    // Close menus
+    document.querySelectorAll('.account-menu-dropdown.show').forEach(menu => {
+        menu.classList.remove('show');
+    });
+
+    // Get account data from data attributes or make API call
+    const accountElement = document.querySelector(`[data-account-id="${accountId}"]`);
+    if (accountElement) {
+        const accountData = {
+            id: accountId,
+            name: accountElement.dataset.name || '',
+            account_type: accountElement.dataset.type || '',
+            balance: accountElement.dataset.balance || '',
+            currency: accountElement.dataset.currency || ''
+        };
+
+        // Populate the form
+        document.getElementById('accountId').value = accountData.id;
+        document.getElementById('accountName').value = accountData.name;
+        document.getElementById('accountType').value = accountData.account_type;
+        document.getElementById('accountBalance').value = accountData.balance;
+        document.getElementById('accountCurrency').value = accountData.currency;
+
+        // Show the modal
+        const modal = document.getElementById('editAccountModal');
+        if (modal) {
+            modal.classList.add('show');
+            modal.style.display = 'block';
+        }
+    }
+}
+
+// Close edit modal
+function closeEditModal() {
+    const modal = document.getElementById('editAccountModal');
+    if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+    }
+    const form = document.getElementById('editAccountForm');
+    if (form) {
+        form.reset();
+    }
+}
+
+// Handle edit form submission
+function handleEditFormSubmission(form) {
+    const formData = new FormData(form);
+    const accountId = formData.get('account_id');
+    
+    // Show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Updating...';
+    }
+    
+    // Simulate API call (replace with actual fetch)
+    setTimeout(() => {
+        showToast('Account updated successfully!', 'success');
+        closeEditModal();
+        
+        // Reset button state
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Update Account';
+        }
+    }, 1000);
+}
+
+// Confirm account deletion
+function confirmDelete(accountId) {
+    if (confirm('Are you sure you want to delete this account? This action cannot be undone.')) {
+        deleteAccount(accountId);
+    }
+}
+
+// Delete account function
+function deleteAccount(accountId) {
+    const csrfToken = getCookie('csrftoken');
+    
+    // Use the global variable set in your HTML template
+    if (!window.DELETE_ACCOUNT_URL) {
+        showToast('Error: Delete URL not configured', 'error');
+        return;
+    }
+    
+    fetch(window.DELETE_ACCOUNT_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ account_id: accountId })
+    })
+    .then(response => {
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json();
+        }
+        throw new Error('Server returned non-JSON response');
+    })
+    .then(data => {
+        if (data.success) {
+            showToast('Account deleted successfully!', 'success');
+            // Remove the account card with smooth animation
+            const accountCard = document.querySelector(`[data-account-id="${accountId}"]`);
+            if (accountCard) {
+                accountCard.style.opacity = '0';
+                accountCard.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    accountCard.remove();
+                }, 300);
+            } else {
+                // Fallback: reload after a delay
+                setTimeout(() => location.reload(), 1000);
+            }
+        } else {
+            showToast('Error: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Delete error:', error);
+        showToast('Error deleting account. Please try again.', 'error');
+    });
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Show toast notification
+function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+    toast.innerHTML = `
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-message">${message}</span>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Show toast
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (toastContainer.contains(toast)) {
+                toastContainer.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Create toast container if it doesn't exist
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    `;
+    document.body.appendChild(container);
+    return container;
+}
+
+// Utility function to get account data (for demo purposes)
+function getAccountData(accountId) {
+    // This would typically come from an API call
+    return {
+        id: accountId,
+        name: `Account ${accountId}`,
+        account_type: 'checking',
+        balance: '1000.00',
+        currency: 'USD'
+    };
+}
+ </script>
 
 {% endblock %}
