@@ -114,11 +114,11 @@ DATABASES = {
     }
 }
 
-# Use PostgreSQL if DATABASE_URL is available
-if 'DATABASE_URL' in os.environ:
+if os.environ.get('DATABASE_URL'):
+    import dj_database_url
     DATABASES['default'] = dj_database_url.config(
+        default=os.environ['DATABASE_URL'],
         conn_max_age=600,
-        conn_health_checks=True,
         ssl_require=True
     )
 
@@ -198,7 +198,7 @@ ALLAUTH_UI_PATH = 'allauth_ui'   # default path
 
 # Allauth account settings
 # Authentication methods (NEW WAY)
-ACCOUNT_AUTHENTICATION_METHOD = "email"  # Use only email for authentication
+ACCOUNT_LOGIN_METHODS = {'email'}  # Use only email for authentication
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # Required signup fields
 
 # Email settings
@@ -345,8 +345,6 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 FILE_UPLOAD_PERMISSIONS = 0o644
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
 
-# STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-
 
 # DeepL translation
 DEEPL_AUTH_KEY = os.getenv("DEEPL_AUTH_KEY")
@@ -384,5 +382,5 @@ WHITENOISE_MANIFEST_STRICT = False
 # Add connection pooling for production database
 if not DEBUG and 'DATABASE_URL' in os.environ:
     DATABASES['default']['CONN_MAX_AGE'] = 600
-    
+
 
