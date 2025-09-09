@@ -167,6 +167,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")] if os.path.exists(os.path.
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+WHITENOISE_MANIFEST_STRICT = False
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
