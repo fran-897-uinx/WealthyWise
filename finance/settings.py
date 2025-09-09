@@ -163,15 +163,23 @@ LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
 
-# Static files (CSS, JavaScript, Images)
+# settings.py
+
+# URL to use when referring to static files
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")] if os.path.exists(os.path.join(BASE_DIR, "static")) else []
+
+# Where 'collectstatic' will collect files for production
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Additional static files locations (during development)
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# Allow WhiteNoise to not fail if a static file is missing in manifest
+WHITENOISE_MANIFEST_STRICT = False
 
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-WHITENOISE_MANIFEST_STRICT = False
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
