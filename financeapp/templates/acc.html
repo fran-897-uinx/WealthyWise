@@ -1,0 +1,364 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load widget_tweaks %}
+{% load humanize %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/account.css' %}">
+<script>
+    window.DELETE_ACCOUNT_URL = "{% url 'delete_account' %}";
+</script>
+<div class="dashboard-container">
+  <!-- Error Display -->
+  {% if form.errors %}
+  <div class="alert alert-danger">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    <strong>Please correct the following errors:</strong>
+    {% for field in form %}
+      {% for error in field.errors %}
+        <p class="mb-1">{{ field.label }}: {{ error }}</p>
+      {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+      <p class="mb-1">{{ error }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">
+      <i class="fas fa-university me-2"></i>
+      Accounts Dashboard
+    </h1>
+    <button
+      type="button"
+      class="add-account-btn"
+      data-bs-toggle="modal"
+      data-bs-target="#addAccountModal"
+    >
+      <i class="fas fa-plus"></i>
+      Add Account
+    </button>
+  </div>
+
+  <!-- Statistics Overview -->
+  <div class="stats-overview">
+    <div class="stat-card">
+      <div class="stat-icon" style="background: linear-gradient(135deg, #007bff, #0056b3);">
+        <i class="fas fa-credit-card"></i>
+      </div>
+      <div class="stat-value">{{ accounts|length }}</div>
+      <div class="stat-label">Total Accounts</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
+        <i class="fas fa-wallet"></i>
+      </div>
+      <div class="stat-value">
+        {% if accounts %}
+         ₦{{ total_balance|intcomma }}
+        {% else %}
+          $0.00
+        {% endif %}
+      </div>
+      <div class="stat-label">Total Balance</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107, #ff9800);">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="stat-value">
+        {% if accounts %}
+          {{ accounts|length }}
+        {% else %}
+          0
+        {% endif %}
+      </div>
+      <div class="stat-label">Active Accounts</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon" style="background: linear-gradient(135deg, #6f42c1, #e83e8c);">
+        <i class="fas fa-history"></i>
+      </div>
+      <div class="stat-value">
+        {% if accounts %}
+          {{ accounts.0.last_transaction_date |naturaltime }}
+        {% else %}
+          N/A
+        {% endif %}
+      </div>
+      <div class="stat-label">Last Transaction</div>
+    </div>
+  </div>
+
+  <!-- Accounts Grid -->
+  {% if accounts %}
+<div class="accounts-grid">
+    {% for account in accounts %}
+    <div class="account-card" data-type="{{ account.account_type|lower }}" data-id="{{ account.id}}">
+        <div class="account-header">
+            <span class="account-type-badge">
+                <i class="fas fa-{{ account.account_type|lower|default:'wallet' }} me-1"></i>
+                {{ account.account_type }}
+            </span>
+            <div class="account-menu">
+                <button class="account-menu-btn" onclick="toggleMenu(this)">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="account-menu-dropdown">
+                    <div class="account-menu-item edit" onclick="openEditModal(this.dataset.id)" data-id="{{ account.id }}">
+                        <i class="fas fa-edit"></i>
+                        Edit Account
+                    </div>
+                    <div class="account-menu-item delete delete-account-btn" onclick="confirmDelete(this.dataset.id)" data-id="{{ account.id }}">
+                        <i class="fas fa-trash"></i>
+                       <a href="#" style="text-decoration: none;" onclick="return false;">Delete Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="account-info">
+            <h3>{{ account.name }}</h3>
+            <div class="account-number">
+                <i class="fas fa-hashtag me-1"></i>
+                {{ account.account_number }}
+            </div>
+        </div>
+
+        <div class="account-balance">
+            <span class="balance-label">
+                <i class="fas fa-coins me-1"></i>
+                Available Balance
+            </span>
+            <span class="balance-amount">
+                {{ account.currency }} {{ account.balance|intcomma }}
+            </span>
+        </div>
+
+        <div class="account-meta">
+            <span>
+                <i class="fas fa-clock me-1"></i>
+                Last Txn: {{ account.last_transaction_date|date:"M d, Y" }}
+            </span>
+            <span>
+                <i class="fas fa-sync-alt me-1"></i>
+                Updated: {{ account.last_updated|date:"M d, H:i" }}
+            </span>
+        </div>
+    </div>
+{{ accounts_json|json_script:"account-data-"|safe }}
+    {% endfor %}
+</div>
+
+<!-- Edit Account Modal -->
+<div class="edit-account-modal" id="editAccountModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeEditModal()">&times;</button>
+        
+        <div class="modal-header">
+            <h2 class="modal-title">Edit Account</h2>
+        </div>
+        
+        <form id="editAccountForm">
+            {% csrf_token %}
+            <input type="hidden" id="accountId" name="account_id">
+            
+            <div class="form-group">
+                <label for="accountName" class="form-label">Account Name</label>
+                <input type="text" id="accountName" name="account_name" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="accountType" class="form-label">Account Type</label>
+                <select id="accountType" name="account_type" class="form-select" required>
+                    <option value="savings">Savings Account</option>
+                    <option value="checking">Checking Account</option>
+                    <option value="business">Business Account</option>
+                    <option value="cash">Cash Wallet</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="accountBalance" class="form-label">Balance</label>
+                <input type="number" id="accountBalance" name="account_balance" class="form-control" step="0.01" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="accountCurrency" class="form-label">Currency</label>
+                <select id="accountCurrency" name="account_currency" class="form-select" required>
+                    <option value="NGN">Naira (NGN)</option>
+                    <option value="USD">US Dollar (USD)</option>
+                    <option value="EUR">Euro (EUR)</option>
+                    <option value="GBP">British Pound (GBP)</option>
+                </select>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+  {% else %}
+  <!-- Empty State -->
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="fas fa-university"></i>
+    </div>
+    <h3>No Accounts Yet</h3>
+    <p>Start by adding your first account to track your finances effectively.</p>
+    <button
+      type="button"
+      class="add-account-btn"
+      data-bs-toggle="modal"
+      data-bs-target="#addAccountModal"
+    >
+      <i class="fas fa-plus me-2"></i>
+      Create Your First Account
+    </button>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Enhanced Add Account Modal -->
+<div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addAccountModalLabel">
+          <i class="fas fa-plus-circle me-2"></i>
+          Add New Account
+        </h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <form method="POST" novalidate>
+        <div class="modal-body">
+          {% csrf_token %}
+          
+          <div class="row">
+            <!-- Account Type -->
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.account_type.id_for_label }}" class="form-label">
+                <i class="fas fa-tags me-1"></i>
+                {{ form.account_type.label }}
+              </label>
+              {{ form.account_type|add_class:"form-select" }}
+              {% for error in form.account_type.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- Currency -->
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.currency.id_for_label }}" class="form-label">
+                <i class="fas fa-dollar-sign me-1"></i>
+                {{ form.currency.label }}
+              </label>
+              {{ form.currency|add_class:"form-control" }}
+              {% for error in form.currency.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Account Name -->
+          <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}" class="form-label">
+              <i class="fas fa-signature me-1"></i>
+              {{ form.name.label }}
+            </label>
+            {{ form.name|add_class:"form-control"|attr:"placeholder:Enter account name (e.g., Main Checking)" }}
+            {% for error in form.name.errors %}
+              <div class="invalid-feedback d-block">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="row">
+            <!-- Account Number -->
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.account_number.id_for_label }}" class="form-label">
+                <i class="fas fa-hashtag me-1"></i>
+                {{ form.account_number.label }}
+              </label>
+              {{ form.account_number|add_class:"form-control"|attr:"placeholder:Enter account number" }}
+              {% for error in form.account_number.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- Balance -->
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.balance.id_for_label }}" class="form-label">
+                <i class="fas fa-wallet me-1"></i>
+                {{ form.balance.label }}
+              </label>
+              {{ form.balance|add_class:"form-control"|attr:"placeholder:0.00" }}
+              {% for error in form.balance.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Last Transaction Date -->
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.last_transaction_date.id_for_label }}" class="form-label">
+                <i class="fas fa-calendar-alt me-1"></i>
+                {{ form.last_transaction_date.label }}
+              </label>
+              {{ form.last_transaction_date|add_class:"form-control" }}
+              {% for error in form.last_transaction_date.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- Last Updated -->
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.last_updated.id_for_label }}" class="form-label">
+                <i class="fas fa-sync-alt me-1"></i>
+                {{ form.last_updated.label }}
+              </label>
+              {{ form.last_updated|add_class:"form-control" }}
+              {% for error in form.last_updated.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-1"></i>
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i>
+            Save Account
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<script id="accounts-data" type="application/json">
+    {{ accounts_json|json_script:"accounts-json"|safe }}
+</script>
+
+ <script src="{% static 'js/account.js' %}"></script>
+
+{% endblock %}

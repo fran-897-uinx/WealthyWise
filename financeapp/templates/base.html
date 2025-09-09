@@ -1,0 +1,281 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load humanize %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<script>
+    window.chartData = JSON.parse('{{ chart_data|escapejs }}');
+    window.topCategoryData = JSON.parse('{{ top_category_json|escapejs }}');
+</script>
+
+<div class="dashboard">
+  <!-- Clean Header -->
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-title">Financial Overview</h1>
+      <div class="dash-date">Today, {% now "F d, Y" %}</div>
+    </div>
+    <div class="dash-actions">
+      <button class="btn-primary">
+        <i class="fas fa-plus"></i>
+        <a href="{% url 'transaction' %}" style="color: white; text-decoration: none;">Add Transaction</a>
+      </button>
+      <button class="btn-secondary">
+        <i class="fas fa-download"></i>
+        <a href="{% url 'export_csv' %}" style="color: #333; text-decoration: none;">Export</a>
+      </button>
+    </div>
+  </div>
+
+  <!-- Simple Stats -->
+  <div class="stats-grid">
+    <div class="stat-card income">
+      <div class="stat-header">
+        <span class="stat-label">Total Income</span>
+        <div class="stat-icon">
+          <i class="fas fa-arrow-up"></i>
+        </div>
+      </div>
+      <div class="stat-value">₦{{ monthly_income|floatformat:2|intcomma }}</div>
+      <div class="stat-change {% if income_trend > 0 %}positive{% else %}negative{% endif %}">
+        <i class="fas fa-arrow-{% if income_trend > 0 %}up{% else %}down{% endif %}"></i>
+        {{ income_trend|floatformat:1 }}% this month
+      </div>
+    </div>
+
+    <div class="stat-card expense">
+      <div class="stat-header">
+        <span class="stat-label">Total Expenses</span>
+        <div class="stat-icon">
+          <i class="fas fa-arrow-down"></i>
+        </div>
+      </div>
+      <div class="stat-value">₦{{ monthly_expenses|floatformat:2|intcomma }}</div>
+      <div class="stat-change {% if expense_trend < 0 %}positive{% else %}negative{% endif %}">
+        <i class="fas fa-arrow-{% if expense_trend < 0 %}down{% else %}up{% endif %}"></i>
+        {{ expense_trend|floatformat:1 }}% this month
+      </div>
+    </div>
+
+    <div class="stat-card balance">
+      <div class="stat-header">
+        <span class="stat-label">Net Balance</span>
+        <div class="stat-icon">
+          <i class="fas fa-wallet"></i>
+        </div>
+      </div>
+      <div class="stat-value">₦{{ net_balance|floatformat:2|intcomma }}</div>
+      <div class="stat-change {% if net_balance > 0 %}positive{% else %}negative{% endif %}">
+        <i class="fas fa-arrow-{% if net_balance > 0 %}up{% else %}down{% endif %}"></i>
+        {% if net_balance > 0 %}+{% endif %}{{ net_balance|floatformat:2|intcomma }}
+      </div>
+    </div>
+
+    <div class="stat-card savings">
+      <div class="stat-header">
+        <span class="stat-label">Savings Progress</span>
+        <div class="stat-icon">
+          <i class="fas fa-piggy-bank"></i>
+        </div>
+      </div>
+      <div class="stat-value">{{ savings_progress|floatformat:0 }}%</div>
+      <div class="stat-change">
+        <i class="fas fa-target"></i>
+        ₦{{ total_balance|floatformat:2|intcomma }} of ₦{{ savings_goal|floatformat:2|intcomma }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-grid">
+    <div class="chart-section">
+      <div class="chart-header">
+        <h2 class="chart-title">Spending Analysis</h2>
+        <div class="chart-tabs">
+          <button class="tab-btn active" data-period="week">Week</button>
+          <button class="tab-btn" data-period="month">Month</button>
+          <button class="tab-btn" data-period="year">Year</button>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="mainChart"></canvas>
+      </div>
+    </div>
+
+    <div class="quick-stats">
+      <h3><i class="fas fa-bolt"></i> Quick Insights</h3>
+      <div class="quick-item">
+        <span class="quick-label">Top Spending Category</span>
+        <span class="quick-value" data-stat="top-category">
+          {% if top_categories.0 %}
+            {{ top_categories.0.category|title }}: ₦{{ top_categories.0.total|floatformat:2|intcomma }}
+          {% else %}
+            No spending data
+          {% endif %}
+        </span>
+      </div>
+      <div class="quick-item">
+        <span class="quick-label">Accounts Balance</span>
+        <span class="quick-value" data-stat="total-balance">
+          ₦{{ total_balance|floatformat:2|intcomma }}
+        </span>
+      </div>
+      <div class="quick-item">
+        <span class="quick-label">Monthly Cash Flow</span>
+        <span class="quick-value {% if net_cash_flow > 0 %}positive{% else %}negative{% endif %}" data-stat="cash-flow">
+          {% if net_cash_flow > 0 %}+{% endif %}₦{{ net_cash_flow|floatformat:2|intcomma }}
+        </span>
+      </div>
+      <div class="quick-item">
+        <span class="quick-label">Emergency Fund</span>
+        <span class="quick-value" data-stat="emergency-fund">
+          {{ emergency_fund_months|floatformat:1 }} months
+        </span>
+      </div>
+      <div class="quick-item">
+        <span class="quick-label">Savings Rate</span>
+        <span class="quick-value {% if savings_rate > 0 %}positive{% else %}negative{% endif %}" data-stat="savings-rate">
+          {{ savings_rate|floatformat:1 }}%
+        </span>
+      </div>
+            <div class="quick-item">
+        <span class="quick-label">Expenditure Ability</span>
+        <span class="quick-value {% if expenditure_rating > 0 %}positive{% else %}negative{% endif %}" data-stat="expenditure-ability" style="font-size: 0.5rem;">
+          {{ expenditure_rating }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Smart Transactions -->
+  <div class="transactions">
+    <div class="transactions-header">
+      <h2 class="transactions-title">Recent Activity</h2>
+      <input type="text" class="search-box" placeholder="Search transactions..." id="searchBox">
+    </div>
+    
+    <div id="transactionList">
+      {% for transaction in recent_transactions %}
+      <div class="transaction-item" data-category="{{ transaction.category }}" data-amount="{{ transaction.amount }}">
+        <div class="transaction-info">
+          <div class="transaction-avatar transaction.color" style="color: white;">
+            {{ transaction.description.0|upper }}
+          </div>
+
+          <div class="transaction-details">
+            <h4>{{ transaction.description }}</h4>
+            <p>{{ transaction.date|date:"M d" }} • {{ transaction.category|title }} • {{ transaction.account.name }}</p>
+          </div>
+        </div>
+        <div class="transaction-amount {% if transaction.transaction_type == 'income' %}positive{% else %}negative{% endif %}">
+          {% if transaction.transaction_type == 'income' %}+{% else %}-{% endif %}₦{{ transaction.amount|floatformat:2|intcomma }}
+        </div>
+      </div>
+      {% empty %}
+      <div class="no-transactions">
+        <i class="fas fa-receipt"></i>
+        <p>No recent transactions found.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- AI Chat Assistant -->
+  <div class="ai-chat">
+    <button class="chat-toggle" onclick="toggleChat()">
+      <i class="fas fa-robot" id="chatIcon"></i>
+    </button>
+    <div class="chat-window" id="chatWindow">
+      <div class="chat-header">
+        <i class="fas fa-robot"></i> Financial Assistant
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-message ai">
+          Hi! I'm your AI financial assistant. I can help you analyze spending, set budgets, and answer questions about your finances. What would you like to know?
+        </div>
+      </div>
+      <div class="user" style="margin:23px; cursor: pointer;" onclick="clearChat()">
+        <i class="fas fa-trash"></i>
+      </div>
+      <div class="chat-input">
+        <input type="text" placeholder="Ask me anything..." id="chatInput" onkeypress="handleChatInput(event)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Display -->
+  {% if error %}
+  <div class="error-message">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>Error loading dashboard: {{ error }}</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Add Transaction Modal -->
+<div class="transaction-modal" id="transactionModal">
+  <div class="modal-overlay" onclick="closeModal()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Add Transaction</h3>
+      <button onclick="closeModal()" class="close-btn">&times;</button>
+    </div>
+    <form class="transaction-form" id="transactionForm">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label>Amount</label>
+          <input type="number" name="amount" placeholder="0.00" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select name="type" required>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" name="description" placeholder="What was this for?" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category</label>
+          <select name="category" required>
+            <option value="">Select category</option>
+            <option value="food">Food & Dining</option>
+            <option value="transport">Transportation</option>
+            <option value="utilities">Utilities</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="shopping">Shopping</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="salary">Salary</option>
+            <option value="freelance">Freelance</option>
+            <option value="investment">Investment</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Account</label>
+          <select name="account" required>
+            {% for account in accounts %}
+            <option value="{{ account.id }}">{{ account.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" onclick="closeModal()" class="btn-cancel">Cancel</button>
+        <button type="submit" class="btn-add">Add Transaction</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="{% static 'js/base.js' %}"></script>
+{% endblock %}

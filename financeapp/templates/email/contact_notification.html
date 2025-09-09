@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>New Contact Message</title>
+</head>
+<body>
+    <h2>New Contact Form Submission</h2>
+    
+    <p>You have received a new message from your website contact form:</p>
+    
+    <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #4CAF50;">
+        <p><strong>Name:</strong> {{ message.name }}</p>
+        <p><strong>Email:</strong> {{ message.email }}</p>
+        <p><strong>Subject:</strong> {{ message.subject }}</p>
+        <p><strong>Message:</strong><br>{{ message.description|linebreaks }}</p>
+        <p><strong>Submitted:</strong> {{ message.created_at }}</p>
+    </div>
+    
+    <p>You can view this message in the admin panel or reply directly to {{ message.email }}.</p>
+    
+    <hr>
+    <p style="color: #888; font-size: 12px;">
+        This is an automated message from {{ site_url }}. Please do not reply to this email.
+    </p>
+</body>
+</html>

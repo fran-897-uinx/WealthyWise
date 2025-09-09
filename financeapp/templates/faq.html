@@ -1,0 +1,446 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/faq.css' %}">
+
+
+<div class="faq-container">
+    <div class="faq-header">
+        <h1 class="faq-title">Frequently Asked Questions</h1>
+        <p class="faq-subtitle">Find answers to common questions about WealthyWise and how to make the most of your financial management experience.</p>
+    </div>
+
+    <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" class="search-input" placeholder="Search for questions or topics..." id="faqSearch">
+    </div>
+
+    <div class="faq-categories">
+        <button class="category-btn active" data-category="all">All Questions</button>
+        <button class="category-btn" data-category="account">Account & Security</button>
+        <button class="category-btn" data-category="transactions">Transactions</button>
+        <button class="category-btn" data-category="features">Features
+            <!-- <blockquote style="color: aqua;">Coming soon</blockquote> -->
+        </button>
+        <button class="category-btn" data-category="billing">Billing & Plans <br>
+            <!-- <blockquote style="color: aqua;">Coming soon</blockquote> -->
+        </button>
+        <button class="category-btn" data-category="technical">Technical
+            <!-- <blockquote style="color: aqua;">Coming soon</blockquote> -->
+        </button>
+    </div>
+
+    <div class="faq-list" id="faqList">
+        <!-- Account & Security -->
+        <div class="faq-item" data-categories="account">
+            <div class="faq-question">
+                <span>How do I create an account on WealthyWise?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>To create an account on WealthyWise:</p>
+                    <ol>
+                        <li>Click on the "Sign Up" button on the homepage</li>
+                        <li>Enter your email address and create a strong password</li>
+                        <li>Verify your email address through the link sent to your inbox</li>
+                        <li>Complete your profile by adding personal information</li>
+                        <li>Set up your security preferences and two-factor authentication</li>
+                    </ol>
+                    <p>Once completed, you can start adding your financial accounts and transactions.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" data-categories="account">
+            <div class="faq-question">
+                <span>Is my financial data secure with WealthyWise?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>Yes, your financial data is extremely secure with WealthyWise. We employ:</p>
+                    <ul>
+                        <li>Bank-level 256-bit encryption for all data transmission and storage</li>
+                        <li>Multi-factor authentication options for account access</li>
+                        <li>Regular security audits and penetration testing</li>
+                        <li>Compliance with GDPR, CCPA, and other privacy regulations</li>
+                        <li>Zero-knowledge encryption for sensitive financial information</li>
+                    </ul>
+                    <p>We never store your banking credentials on our servers and use read-only access to your financial accounts.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" data-categories="account">
+            <div class="faq-question">
+                <span>How do I enable two-factor authentication?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>To enable two-factor authentication (2FA):</p>
+                    <ol>
+                        <li>Click to your Account Settings from the Sidebar </li>
+                        <!-- <li>Select the "Security" tab</li> -->
+                        <li>Click on "Enable Two-Factor Authentication"</li>
+                        <li>Scan the QR code with your authenticator app (Google Authenticator, Authy, etc.)</li>
+                        <li>Enter the verification code from your authenticator app</li>
+                        <li>Save your backup codes in a secure location</li>
+                    </ol>
+                    <p>Once enabled, you'll need both your password and a verification code from your authenticator app to log in.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions -->
+        <div class="faq-item" data-categories="transactions">
+            <div class="faq-question">
+                <span>How do I add a transaction manually?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>To add a transaction manually:</p>
+                    <ol>
+                        <li>Navigate to the Transactions page from your dashboard</li>
+                        <li>Click the "Add Transaction" button</li>
+                        <li>Select the account for the transaction</li>
+                        <li>Choose between income or expense</li>
+                        <li>Enter the amount, date, and description</li>
+                        <li>Select a category (or let our AI categorize it for you)</li>
+                        <li>Add any notes or tags for better organization</li>
+                        <li>Click "Save Transaction"</li>
+                    </ol>
+                    <p>Manual transactions will be included in your reports and analytics just like automated transactions.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" data-categories="transactions">
+            <div class="faq-question">
+                <span>Why isn't my transaction showing up immediately?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>There are several reasons why transactions might not appear immediately:</p>
+                    <ul>
+                        <li><strong>Pending transactions:</strong> Most banks show transactions as "pending" for 1-3 business days before they clear</li>
+                        <li><strong>Sync timing:</strong> WealthyWise syncs with your financial institutions every 4-6 hours</li>
+                        <li><strong>Bank processing:</strong> Some transactions take longer to process, especially on weekends and holidays</li>
+                        <li><strong>Connection issues:</strong> Occasionally, temporary connection issues with your bank can delay syncing</li>
+                    </ul>
+                    <p>If a transaction doesn't appear after 3 business days, please check your bank's website directly and contact support if the issue persists.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <!-- <div class="faq-item" data-categories="features">
+            <div class="faq-question">
+                <span>How does the AI spending analysis work?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>Our AI spending analysis uses machine learning to:</p>
+                    <ul>
+                        <li><strong>Categorize transactions:</strong> Automatically sorts your spending into categories based on merchant patterns</li>
+                        <li><strong>Identify trends:</strong> Detects spending patterns and alerts you to unusual activity</li>
+                        <li><strong>Predict future spending:</strong> Forecasts your cash flow based on historical data</li>
+                        <li><strong>Provide insights:</strong> Offers personalized recommendations to optimize your finances</li>
+                        <li><strong>Detect savings opportunities:</strong> Identifies areas where you could potentially save money</li>
+                    </ul>
+                    <p>The more you use WealthyWise, the smarter our AI becomes at understanding your financial habits and providing valuable insights.</p>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- <div class="faq-item" data-categories="features">
+            <div class="faq-question">
+                <span>Can I set up custom budgeting categories?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>Yes, you can create custom budgeting categories in WealthyWise:</p>
+                    <ol>
+                        <li>Go to the "Budgets" section in your dashboard</li>
+                        <li>Click on "Manage Categories"</li>
+                        <li>Select "Create New Category"</li>
+                        <li>Name your category and choose an icon/color</li>
+                        <li>Set spending limits and alerts if desired</li>
+                        <li>Save your new category</li>
+                    </ol>
+                    <p>You can also assign transactions to your custom categories manually or set rules to automatically categorize future transactions.</p>
+                    <p>Custom categories work alongside our default categories and are included in all reports and analytics.</p>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- Billing & Plans -->
+        <!-- <div class="faq-item" data-categories="billing">
+            <div class="faq-question">
+                <span>What's the difference between free and premium plans?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>WealthyWise offers two main plans:</p>
+                    
+                    <h4>Free Plan</h4>
+                    <ul>
+                        <li>Basic budgeting and expense tracking</li>
+                        <li>Up to 2 connected bank accounts</li>
+                        <li>Manual transaction entry</li>
+                        <li>Standard reports</li>
+                        <li>Email support</li>
+                    </ul>
+                    
+                    <h4>Premium Plan ($9.99/month or $99/year)</h4>
+                    <ul>
+                        <li>Unlimited connected accounts</li>
+                        <li>Advanced AI-powered insights</li>
+                        <li>Automated transaction categorization</li>
+                        <li>Custom categories and tags</li>
+                        <li>Investment tracking</li>
+                        <li>Bill reminders and predictions</li>
+                        <li>Priority support</li>
+                        <li>Data export capabilities</li>
+                        <li>Advanced reporting and analytics</li>
+                    </ul>
+                    
+                    <p>You can upgrade to Premium at any time from your account settings.</p>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- <div class="faq-item" data-categories="billing">
+            <div class="faq-question">
+                <span>How do I cancel my subscription?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>To cancel your Premium subscription:</p>
+                    <ol>
+                        <li>Go to your Account Settings</li>
+                        <li>Select the "Billing" tab</li>
+                        <li>Click on "Manage Subscription"</li>
+                        <li>Select "Cancel Subscription"</li>
+                        <li>Follow the prompts to confirm cancellation</li>
+                    </ol>
+                    <p>Important information about cancellation:</p>
+                    <ul>
+                        <li>You'll have access to Premium features until the end of your current billing period</li>
+                        <li>No refunds are provided for partial months</li>
+                        <li>After cancellation, your account will revert to the Free plan</li>
+                        <li>Your data will be preserved, but some features may become unavailable</li>
+                    </ul>
+                    <p>If you're having issues, please contact our support team before canceling - we might be able to help!</p>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- Technical Issues -->
+        <!-- <div class="faq-item" data-categories="technical">
+            <div class="faq-question">
+                <span>What should I do if my bank connection fails?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>If your bank connection fails, try these troubleshooting steps:</p>
+                    <ol>
+                        <li><strong>Check bank status:</strong> First, verify that your bank's website is accessible and not experiencing outages</li>
+                        <li><strong>Reconnect account:</strong> Go to Settings → Connected Accounts and try reconnecting the problematic account</li>
+                        <li><strong>Update credentials:</strong> If prompted, re-enter your banking credentials (we use encrypted tokens and never store your actual login details)</li>
+                        <li><strong>Check for updates:</strong> Ensure you're using the latest version of the app</li>
+                        <li><strong>Clear cache:</strong> Try clearing your browser cache or app data</li>
+                    </ol>
+                    <p>If these steps don't resolve the issue:</p>
+                    <ul>
+                        <li>Some banks require additional security steps for third-party connections</li>
+                        <li>Your bank might have changed their security protocols</li>
+                        <li>There could be temporary technical issues on either side</li>
+                    </ul>
+                    <p>If problems persist, contact our support team with details about your bank and the error message you're receiving.</p>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- <div class="faq-item" data-categories="technical">
+            <div class="faq-question">
+                <span>Why are my transactions duplicated?</span>
+                <i class="fas fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>Transaction duplication can occur for several reasons:</p>
+                    <ul>
+                        <li><strong>Manual and automatic entry:</strong> If you add a transaction manually that was also imported from your bank</li>
+                        <li><strong>Bank sync issues:</strong> Occasionally during sync processes, transactions can be imported multiple times</li>
+                        <li><strong>Account connections:</strong> If you have the same account connected through multiple methods (direct connect and file upload)</li>
+                        <li><strong>Pending vs posted transactions:</strong> Some banks show both pending and posted versions of the same transaction</li>
+                    </ul>
+                    <p>To resolve duplication issues:</p>
+                    <ol>
+                        <li>Use the "Find Duplicates" tool in the Transactions menu</li>
+                        <li>Review and merge duplicate transactions</li>
+                        <li>Check your connected accounts for overlaps</li>
+                        <li>Consider disabling manual entry if you have full bank connectivity</li>
+                    </ol>
+                    <p>Our system automatically detects most duplicates, but occasional manual review may be needed.</p>
+                </div>
+            </div>
+        </div> -->
+    </div>
+
+    <div class="no-results" id="noResults">
+        <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+        <h3>No results found</h3>
+        <p>Try different keywords or browse the categories above</p>
+    </div>
+
+   
+    
+    <div class="contact-section" data-bs-toggle="modal" data-bs-target="#addContactModel">
+        <h2 class="contact-title">Still have questions?</h2>
+        <p class="contact-text">Our support team is here to help you with any other questions you might have.</p>
+        <a href="#" class="contact-btn">Contact Support</a>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal fade" id="addContactModel" tabindex="-1" aria-labelledby="addContactModelLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title" id="addTransactionModalLabel">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Contact Support
+                    </h1>
+                </div>
+
+                <form id="contactForm" method="post" action="{% url 'contact' %}">
+                    {% csrf_token %}
+                    <div class="modal-body text-success">
+                        <!-- Contact Information -->
+                        <div class="form-group mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-phone me-2"></i>
+                                Contact Us with:
+                            </label>
+                            <span>+2347043118841</span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-envelope me-2"></i>
+                                OR Send Us Email directly
+                            </label>
+                        </div>
+                        
+                        <!-- Form Fields -->
+                        <div class="row"> 
+                            <div class="col-md-6 mb-3">
+                                {% if form.name %}
+                                    {{ form.name }}
+                                {% else %}
+                                    <input type="text" class="form-control" placeholder="Enter your name" name="name" required>
+                                {% endif %}
+                                {% if form.name.errors %}
+                                    <div class="text-danger">{{ form.name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {% if form.email %}
+                                    {{ form.email }}
+                                {% else %}
+                                    <input type="email" class="form-control" placeholder="Enter your email" name="email" required>
+                                {% endif %}
+                                {% if form.email.errors %}
+                                    <div class="text-danger">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {% if form.subject %}
+                                {{ form.subject }}
+                            {% else %}
+                                <input type="text" class="form-control" placeholder="Subject" name="subject" required>
+                            {% endif %}
+                            {% if form.subject.errors %}
+                                <div class="text-danger">{{ form.subject.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label for="description" class="form-label">
+                                <i class="fas fa-file-alt me-2"></i>
+                                Description
+                            </label>
+                            {% if form.description %}
+                                {{ form.description }}
+                            {% else %}
+                                <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter your message..." required></textarea>
+                            {% endif %}
+                            {% if form.description.errors %}
+                                <div class="text-danger">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Send message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Alert Container -->
+    <div id="formAlert" class="alert alert-dismissible fade" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+        <span id="alertMessage"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+
+
+
+<!-- Success/Error Alert Container -->
+<div id="formAlert" class="alert alert-dismissible fade" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+  <span id="alertMessage"></span>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+</div>
+
+<script src="{% static 'js/faq.js' %}"></script>
+
+<!-- Add this JavaScript for form handling -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Your existing FAQ JavaScript code
+    
+    // Add form submission handling if needed
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            // Add any custom validation or AJAX submission here
+        });
+    }
+});
+</script>
+
+{% endblock %}

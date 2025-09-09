@@ -1,0 +1,273 @@
+{% load socialaccount %}  <!-- needed for provider_login_url -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+  <!-- <link rel="stylesheet" href="{% static 'css/register.css' %}"> -->
+</head>
+<style>
+      * {
+      margin: 0%;
+      padding: 0%;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0b0f14;
+      --panel: #111821;
+      --muted: #92a2b3;
+      --text: #e8eef6;
+      --accent: #4aa8ff;
+      --accent-2: #7c5cff;
+      --danger: #ff6b6b;
+      --success: #3ddc97;
+      --card: #0f141b;
+      --border: #1a2330;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --gap: 16px;
+      --gap-lg: 22px;
+    }
+    main {
+      height: 100vh;
+      width: 100%;
+      place-items: center;
+      padding-top: 30px;
+      background: var(--bg);
+    }
+    .wrap {
+      color: #fff;
+      display: flex;
+      /* flex-direction: column; */
+      /* flex-wrap: wrap; */
+      padding: 14px;
+      width: 900px;
+      height: auto;
+      background: var(--card);
+      border-radius: var(--radius);
+      /* background-image: url(./yar.jpg);
+      background-position: center;
+      background-size: cover;
+      background-blend-mode: difference; */
+      box-shadow: var(--shadow);
+      /* transform: skewX(2deg); */
+    }
+    img {
+      width: 400px;
+      height: 400px;
+      border-radius: 7px;
+    }
+    form {
+      display: block;
+      padding: 30px;
+      padding-bottom: 1px;
+      padding-top: 20px;
+      font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+      text-transform: capitalize;
+      /* gap: 2rem; */
+      h3 {
+        font-size: 24px;
+        letter-spacing: 2px;
+        margin-bottom: 5px;
+      }
+      p {
+        font-size: 13px;
+        margin-bottom: 12px;
+        color: var(--text);
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+    }
+    input {
+      color: var(--text);
+      width: 100%;
+      height: 30px;
+      margin: 0.3rem;
+      border: none;
+      border-radius: 7px;
+      padding: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+    code {
+      position: relative;
+      z-index: 100;
+      float: right;
+      top: 0px;
+      right: 0px;
+    }
+    #radio1 {
+      display: inline-flex;
+      font-size: x-small;
+      p {
+        padding-top: 10px;
+      }
+    }
+    #radio {
+      width: 20px;
+    }
+    #submit {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      height: 39px;
+      padding: 10px 14px 10px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      background: linear-gradient(135deg, var(--accent), #60b7ff);
+      border: 0;
+      color: #f5fafd;
+      font-size: 15px;
+      text-align: center;
+      font-weight: bolder;
+    }
+    #submit:hover {
+      transform: translateY(-1px);
+      border-color: #273246;
+    }
+    h6 {
+      font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+      text-transform: capitalize;
+      align-self: center;
+      place-self: center;
+      margin: 5px;
+      color: var(--accent-2);
+      font-style: oblique;
+      font-weight: bolder;
+      font-size: 11px;
+    }
+    button {
+      color: var(--text);
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 0;
+      color: #f5fafd;
+      font-size: 15px;
+      text-align: center;
+      font-weight: bolder;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      a {
+        text-decoration: none;
+        color: #fff;
+      }
+    }
+    button:hover {
+      transform: translateY(-1px);
+      border-color: #273246;
+    }
+    .btn {
+      display: flex;
+      justify-content: space-evenly;
+    }
+
+    /* Form styles form p  */
+    form p {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 12px;
+    }
+
+    form input {
+      margin-top: 5px;
+    }
+    form .errorlist {
+      color: var(--danger);
+      font-size: 13px;
+      list-style: none;
+      padding: 0;
+    }
+    .social-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      background: var(--card);
+      color: #f5fafd;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: var(--shadow);
+      transition: 0.2s;
+    }
+
+    .social-btn.google {
+      background: #4285f4;
+    }
+    .social-btn.facebook {
+      background: #1877f2;
+    }
+    .social-btn.apple {
+      background: #000;
+    }
+
+    .social-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    /* end Form styles */
+
+    @media screen and (max-width: 884px) {
+      aside {
+        display: none;
+      }
+      .wrap {
+        display: block;
+        width: 100%;
+        padding-block: 24px;
+        padding-inline: 3px;
+        /* transform: skewX(0deg);
+        background: #252424; */
+      }
+      main {
+        padding-inline: 12px;
+        padding-block-start: 59px;
+        background-image: url(./yar.jpg);
+        background-position: center;
+        background-size: cover;
+        background-blend-mode: difference;
+      }
+    }
+</style>
+<body>
+  <main>
+    <div class="wrap">
+      <aside>
+        <img src="{% static 'images/download.jpg' %}" alt="welcome" />
+      </aside>
+
+      <section>
+        <form method="post" action="{% url 'account_signup' %}">
+          {% csrf_token %}
+          <h3>Create an Account</h3>
+          <p>
+            Already have an account?
+            <a href="{% url 'account_login' %}">Login</a>
+          </p>
+
+          <!-- form fields -->
+          {{ form.as_p }}
+
+          <input type="submit" value="Create Account" id="submit">
+        </form>
+
+        <h6>or signup with</h6>
+        <div class="btn">
+          <button><a href="{% provider_login_url 'google' %}">Google</a></button>
+          <button><a href="{% provider_login_url 'facebook' %}">Facebook</a></button>
+          <button><a href="{% provider_login_url 'apple' %}">Apple</a></button>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

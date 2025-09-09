@@ -1,0 +1,207 @@
+{% extends "layout.html" %}
+{% block content %}
+{% load static %}
+
+<div class="container-fluid py-4" style="background: var(--bg); color: var(--text);">
+    <div class="row">
+        <div class="col-12" style="background: var(--bg);">
+            <div class="card shadow-sm mb-4" style="background: var(--bg); color: var(--text);">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h4 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Budget Manager</h4>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="btn-group">
+                                <select id="monthSelector" class="form-select me-2" style="width: auto; display: inline-block;">
+                                    {% for month in month_options %}
+                                        <option value="{{ month.value }}" {% if month.selected %}selected{% endif %}>{{ month.display }}</option>
+                                    {% endfor %}
+                                </select>
+                                <a href="{% url 'budget_insights' %}" class="btn btn-secondary" style=" width: auto; border-radius: 12px; margin-inline-end: 5px;">
+                                Insights
+                                </a>
+                                <a href="{% url 'transaction' %}" class="btn btn-light" style="width: auto; border-radius: 12px;">
+                                    <i class="fas fa-arrow-left me-1"></i> Back to Transactions
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card bg-light-success border-0">
+                                <div class="card-body text-center py-3">
+                                    <h6 class="card-title text-muted">Total Budget</h6>
+                                    <h3 class="card-text text-success">₦{{ total_budget|floatformat:2 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light-warning border-0">
+                                <div class="card-body text-center py-3">
+                                    <h6 class="card-title text-muted">Total Spent</h6>
+                                    <h3 class="card-text text-warning">₦{{ total_spent|floatformat:2 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light-info border-0">
+                                <div class="card-body text-center py-3">
+                                    <h6 class="card-title text-muted">Total Remaining</h6>
+                                    <h3 class="card-text text-info">₦{{ total_remaining|floatformat:2 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <div class="card mb-4" style="background: var(--panel);">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Add/Update Budget</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label for="category" class="form-label">Category</label>
+                                            <select class="form-select" id="category" name="category" required>
+                                                <option value="">Select Category</option>
+                                                {% for value, label in categories %}
+                                                    <option value="{{ value }}">{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3" >
+                                            <label for="amount" class="form-label">Monthly Budget (₦)</label>
+                                            <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-save me-1"></i> Set Budget
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div class="card" style="background: var(--panel);">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Budget Tips</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-light">
+                                        <ul class="mb-0 ps-3">
+                                            <li class="mb-2">Set realistic budgets based on your spending history</li>
+                                            <li class="mb-2">Review and adjust budgets monthly</li>
+                                            <li class="mb-2">Focus on categories where you tend to overspend</li>
+                                            <li>Use the progress bars to track your spending</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7">
+                            <div class="card" style="background: var(--panel); color: #fff;">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Budget Overview - {{ selected_month_display }}</h5>
+                                </div>
+                                <div class="card-body p-0" style="background: var(--panel); color: var(--text);">
+                                    {% if budgets %}
+                                    <div class="table-responsive" style="background: var(--panel); color: var(--text);">
+                                        <table class="table table-hover mb-0" style="background: var(--panel); color: var(--text); cursor: pointer;">
+                                            <thead class="table"style="background: var(--panel); color: var(--text);">
+                                                <tr>
+                                                    <th>Category</th>
+                                                    <th>Budget</th>
+                                                    <th>Spent</th>
+                                                    <th>Remaining</th>
+                                                    <th>Progress</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for budget in budgets %}
+                                                <tr class="{% if budget.over_budget %}table-danger{% endif %}">
+                                                    <td class="fw-bold">{{ budget.category_display }}</td>
+                                                    <td>₦{{ budget.amount|floatformat:2 }}</td>
+                                                    <td>₦{{ budget.spent|floatformat:2 }}</td>
+                                                    <td class="{% if budget.remaining < 0 %}text-danger{% else %}text-success{% endif %} fw-bold">
+                                                        ₦{{ budget.remaining|floatformat:2 }}
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                                <div class="progress-bar {% if budget.over_budget %}bg-danger{% elif budget.percentage_used > 75 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                                     role="progressbar w-{{ budget.percentage_used|floatformat:0 }}" 
+                                                                     aria-valuenow="{{ budget.percentage_used }}" aria-valuemin="0" aria-valuemax="100">
+                                                                </div>
+                                                            </div>
+                                                            <small class="text-muted">{{ budget.percentage_used|floatformat:0 }}%</small>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <form method="post" action="{% url 'delete_budget' budget.id %}" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this budget?')">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">No budgets set for {{ selected_month_display }}</h5>
+                                        <p class="text-muted">Create a budget to start tracking your spending</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Month selector functionality
+        const monthSelector = document.getElementById('monthSelector');
+        if (monthSelector) {
+            monthSelector.addEventListener('change', function() {
+                const month = this.value;
+                window.location.href = `{% url 'budget_manager' %}?month=${month}`;
+            });
+        }
+    });
+</script>
+
+<style>
+    .bg-light-success { background-color: rgba(25, 135, 84, 0.1) !important; }
+    .bg-light-warning { background-color: rgba(255, 193, 7, 0.1) !important; }
+    .bg-light-info { background-color: rgba(13, 202, 240, 0.1) !important; }
+    .progress { border-radius: 10px; }
+    .progress-bar { border-radius: 10px; }
+    .card { border: none; border-radius: 12px; }
+    .card-header { border-radius: 12px 12px 0 0 !important; }
+    .table th { border-top: none; font-weight: 600; }
+</style>
+{% endblock %}

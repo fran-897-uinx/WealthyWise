@@ -1,0 +1,183 @@
+{% extends "layout.html" %}
+{% block content %}
+{% load widget_tweaks %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/edit.css' %}">
+<div class="profile-container">
+    <!-- Messages -->
+    <div id="message-container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="avatar-wrapper">
+            <div class="avatar">
+                {% if user.profile.avatar %}
+                    <img id="avatar-image" src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                {% else %}
+                    <div class="avatar-placeholder">
+                        {{ user.profile.get_initials }}
+                    </div>
+                {% endif %}
+                <div class="avatar-edit" onclick="document.getElementById('id_avatar').click()">
+                    <i class="fas fa-camera"></i>
+                </div>
+            </div>
+        </div>
+        <div class="username">Edit Your Profile</div>
+        <div class="user-role">{{ user.profile.get_account_type_display }} Member</div>
+    </div>
+
+    <!-- Debug Information -->
+    <div class="debug-info">
+        <div class="debug-title">Edit Information:</div>
+        <div class="debug-data" id="debug-data">
+            Form will submit via AJAX. Check browser console for details.
+        </div>
+    </div>
+
+    <!-- Edit Profile Form -->
+    <form id="profile-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Avatar Upload Field (hidden) -->
+        <input type="file" id="id_avatar" name="avatar" accept="image/*" style="display: none;">
+        
+        <!-- Image Preview -->
+        <div class="image-preview" id="image-preview" style="display: none;">
+            <img id="preview-img" src="#" alt="Image Preview">
+        </div>
+
+        <!-- Personal Information Section -->
+        <div class="form-section">
+            <h3 class="section-title"><i class="fas fa-user me-2"></i>Personal Information</h3>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ user_form.first_name.id_for_label }}" class="form-label">
+                        {{ user_form.first_name.label }}
+                    </label>
+                    {{ user_form.first_name|add_class:"form-control"|attr:"placeholder:Enter first name (e.g., John)" }}
+                    {% if user_form.first_name.errors %}
+                        <div class="text-danger">{{ user_form.first_name.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="{{ user_form.last_name.id_for_label }}" class="form-label">
+                        {{ user_form.last_name.label }}
+                    </label>
+                    {{ user_form.last_name|add_class:"form-control"|attr:"placeholder:Enter last name (e.g., Doe)" }}
+                    {% if user_form.last_name.errors %}
+                        <div class="text-danger">{{ user_form.last_name.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_email" class="form-label">{{ user_form.email.label }}</label>
+                    {{ user_form.email|add_class:"form-control"|attr:"placeholder:Enter email address" }}
+                    {% if user_form.email.errors %}
+                        <div class="text-danger">{{ user_form.email.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="id_phone" class="form-label">{{ profile_form.phone_number.label }}</label>
+                    {{ profile_form.phone_number|add_class:"form-control"|attr:"placeholder:Enter phone number" }}
+                    {% if profile_form.phone_number.errors %}
+                        <div class="text-danger">{{ profile_form.phone_number.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Settings Section -->
+        <div class="form-section">
+            <h3 class="section-title"><i class="fas fa-cog me-2"></i>Account Settings</h3>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_username" class="form-label">{{ user_form.username.label }}</label>
+                    {{ user_form.username|add_class:"form-control"|attr:"placeholder:Enter username" }}
+                    {% if user_form.username.errors %}
+                        <div class="text-danger">{{ user_form.username.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="id_account_type" class="form-label">{{ profile_form.account_type.label }}</label>
+                    {{ profile_form.account_type|add_class:"form-control" }}
+                    {% if profile_form.account_type.errors %}
+                        <div class="text-danger">{{ profile_form.account_type.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-check form-switch mb-3">
+                {{ profile_form.email_alerts_enabled|add_class:"form-check-input" }}
+                <label class="form-check-label" for="{{ profile_form.email_alerts_enabled.id_for_label }}">
+                    {{ profile_form.email_alerts_enabled.label }}
+                </label>
+            </div>
+        </div>
+
+        <!-- Security Section -->
+        <div class="form-section">
+            <h3 class="section-title"><i class="fas fa-shield-alt me-2"></i>Security</h3>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_current_password" class="form-label">{{ profile_form.current_password.label }}</label>
+                    {{ profile_form.current_password|add_class:"form-control"|attr:"placeholder:Enter current password"|attr:"type:password" }}
+                    {% if profile_form.current_password.errors %}
+                        <div class="text-danger">{{ profile_form.current_password.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="id_new_password" class="form-label">{{ profile_form.new_password.label }}</label>
+                    {{ profile_form.new_password|add_class:"form-control"|attr:"placeholder:Enter new password"|attr:"type:password" }}
+                    {% if profile_form.new_password.errors %}
+                        <div class="text-danger">{{ profile_form.new_password.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_confirm_password" class="form-label">{{ profile_form.confirm_password.label }}</label>
+                    {{ profile_form.confirm_password|add_class:"form-control"|attr:"placeholder:Confirm new password"|attr:"type:password" }}
+                    {% if profile_form.confirm_password.errors %}
+                        <div class="text-danger">{{ profile_form.confirm_password.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <a href="{% url 'profile' %}" class="profile-btn profile-btn-outline">
+                <i class="fas fa-arrow-left me-2"></i>Back to Profile
+            </a>
+            
+            <button type="submit" class="profile-btn profile-btn-primary">
+                <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+ <script src="{% static 'js/edit.js' %}"></script>
+{% endblock %}

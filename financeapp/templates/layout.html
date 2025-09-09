@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ user_theme }}">
+  <head>
+    {% load bootstrap5 %} 
+    {% load i18n %} 
+    {% load static %}
+
+    <!-- Charset & Viewport -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO & Social -->
+    <meta name="description" content="WealthyWise - Manage your expenses, transactions, and reports easily." />
+    <meta name="author" content="CodeSmith" />
+    <meta property="og:title" content="WealthyWise" />
+    <meta property="og:description" content="Track and analyze your finances with ease." />
+    <meta property="og:image" content="https://yourdomain.com{% static 'images/logo.png' %}" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0a0a0f" />
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}" />
+
+    <!-- CSS -->
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}" />
+
+    <!-- JS -->
+    {% bootstrap_javascript %}
+    <script src="{% static 'js/layout.js' %}"></script>
+
+    <!-- Title -->
+    <title>{{ app_settings.site_name|default:"WealthyWise" }}</title>
+
+   <script>
+      const SAVE_SETTING_URL = "{% url 'save_setting' %}";
+   </script>
+
+  </head>
+
+  <body>
+    <div class="app-container">
+      <!-- Mobile Toggle Button -->
+      <p class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </p>
+
+      <!-- Mobile Overlay -->
+      <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
+
+      <!-- Sidebar Navigation -->
+      <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="brand">
+            {{ app_settings.site_name|default:"WealthyWise" }}
+          </div>
+        </div>
+
+        <div class="sidebar-nav">
+          <!-- Profile -->
+          <div class="nav-item">
+            <a href="{% url 'profile' %}" class="nav-link">
+              <div class="nav-icon">
+                <i class="fas fa-user"></i> <span class="status-dot"></span>
+              </div>
+              <span class="nav-text sidebar-user">
+                <div class="user-avatar">
+                  {% if user.profile.avatar %}
+                  <img
+                    src="{{ user.profile.avatar.url }}"
+                    alt="{{ user.username }}"
+                    style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"
+                  />
+                  {% else %}
+                  <div class="avatar-placeholder">
+                    {{ user.profile.get_initials }}
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="user-status">
+                  <span>Online</span>
+                </div>
+              </span>
+            </a>
+          </div>
+
+          <!-- Links -->
+          <div class="nav-item"><a href="{% url 'landing' %}" class="nav-link"><div class="nav-icon"><i class="fas fa-home"></i></div><span class="nav-text">Home</span></a></div>
+          <div class="nav-item"><a href="{% url 'account_dashboard' %}" class="nav-link"><div class="nav-icon"><i class="fas fa-credit-card"></i></div><span class="nav-text">Accounts</span></a></div>
+          <div class="nav-item"><a href="{% url 'transaction' %}" class="nav-link"><div class="nav-icon"><i class="fas fa-chart-line"></i></div><span class="nav-text">Dashboard</span></a></div>
+
+          <!-- Settings -->
+          <div class="nav-item">
+            <a href="#" class="nav-link" id="settingsBtn">
+              <div class="nav-icon"><i class="fas fa-cog"></i></div>
+              <span class="nav-text">Settings</span>
+            </a>
+            <div class="settings-panel" id="settingsPanel">
+              <div class="settings-title">
+                Settings
+                <button id="settingsclose" class="nav-link" style="border: none; background: var(--bg)">X</button>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label">Dark Mode</span>
+                <div class="toggle-switch" id="darkModeToggle"></div>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label">Email Alerts</span>
+                <div class="toggle-switch active" id="emailAlertsToggle" onclick="toggleEmailAlerts()"></div>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label">Notifications</span>
+                <div class="setting-control">
+                  <div class="toggle-switch active" id="notificationsToggle" onclick="toggleNotifications()"></div>
+                </div>
+              </div>
+              <div class="setting-item">
+                <a style="text-decoration: none" class="setting-label" href="{% url 'mfa_index' %}">
+                  Enable Two Factor Authentication
+                </a>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label">Language</span>
+                <div class="setting-control">
+                  <select id="languageSelect" style="background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 0.25rem; border-radius: 4px;">
+                    <option value="en">English</option>
+                    <option value="fr">Français</option>
+                    <option value="es">Español</option>
+                    <option value="de">Deutsch</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- More links -->
+          <div class="nav-item"><a href="{% url 'budget_manager' %}" class="nav-link"><div class="nav-icon"><i class="fas fa-chart-pie me-2"></i></div><span class="nav-text">Budgets</span></a></div>
+          <div class="nav-item"><a href="{% url 'faq' %}" class="nav-link"><div class="nav-icon"><i class="fas fa-question-circle"></i></div><span class="nav-text">FAQ</span></a></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="sidebar-footer">
+          <a href="{% url 'logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="logout-text">Logout</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main class="main-content" id="mainContent">
+        {% block content %}
+        {% endblock %}
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: finance-app
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "python manage.py migrate && gunicorn finance.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --timeout 120"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: finance-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: RENDER
+        value: true
+      - key: DJANGO_LOG_LEVEL
+        value: WARNING
+      - key: PYTHONUNBUFFERED
+        value: true
+      - key: DEBUG
+        value: false
+      - key: DJANGO_SETTINGS_MODULE
+        value: finance.settings
+      - key: ALLOWED_HOSTS
+        value: .onrender.com,localhost,127.0.0.1
+    healthCheckPath: /health/
+    autoDeploy: true
+
+databases:
+  - name: finance-db
+    plan: free
+    databaseName: finance
+    user: finance_user
+    ipAllowList: []  # Allow all IPs (for Render's dynamic IPs)

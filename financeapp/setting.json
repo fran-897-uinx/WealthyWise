@@ -1,0 +1,33 @@
+{
+  "themes": {
+    "default": {
+      "primary_color": "#007bff",
+      "secondary_color": "#6c757d",
+      "background_color": "#f8f9fa",
+      "text_color": "#212529"
+    },
+    "dark": {
+      "primary_color": "#343a40",
+      "secondary_color": "#495057",
+      "background_color": "#212529",
+      "text_color": "#f8f9fa"
+    },
+    "light": {
+      "primary_color": "#1e90ff",
+      "secondary_color": "#868e96",
+      "background_color": "#ffffff",
+      "text_color": "#212529"
+    }
+  },
+  "authentication": {
+    "google": true,
+    "email": true
+  },
+  "income_settings": {
+    "default_currency": "NGN",
+    "manual_entry": true,
+    "auto_calculate_balance": true
+  },
+  "site_name": "WealthWay",
+  "logo_url": "https://yourdomain.com/logo.png"
+}
