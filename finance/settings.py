@@ -169,6 +169,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 # Allow WhiteNoise to not fail if a static file is missing in manifest
 WHITENOISE_MANIFEST_STRICT = False
@@ -320,13 +325,7 @@ if os.environ.get("REDIS_URL"):
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
-# # Static files (CSS, JavaScript, Images)        
-# STORAGES = {
-#     # ...
-#     "staticfiles": {
-#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-#     },
-# }
+
 # Crispy forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
