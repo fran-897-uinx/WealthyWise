@@ -164,15 +164,11 @@ LOCALE_PATHS = [
 ]
 
 # settings.py
-
-# URL to use when referring to static files
-STATIC_URL = "/static/"
-
-# Where 'collectstatic' will collect files for production
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# Additional static files locations (during development)
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 # Allow WhiteNoise to not fail if a static file is missing in manifest
 WHITENOISE_MANIFEST_STRICT = False
@@ -324,10 +320,13 @@ if os.environ.get("REDIS_URL"):
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
-
-# Static files storage
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
+# Static files (CSS, JavaScript, Images)        
+STORAGES = {
+    # ...
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 # Crispy forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
