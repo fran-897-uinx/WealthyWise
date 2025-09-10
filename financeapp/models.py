@@ -1,4 +1,5 @@
 from django.db import models, transaction  # Add transaction import here
+# from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator, RegexValidator, EmailValidator
 from django.utils import timezone
@@ -7,9 +8,12 @@ from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 import logging
+from django.conf import settings
 from django.db.models import Sum, Count, Q
 from decimal import Decimal
 logger = logging.getLogger(__name__)
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class UserProfile(models.Model):
@@ -21,6 +25,8 @@ class UserProfile(models.Model):
         ('premium', 'Premium'),
         ('business', 'Business'),
     )
+    User.USERNAME_FIELD
+    REQUIRED_FIELDS = ['user']
     
     is_active = models.BooleanField(default=True, db_index=True)
     user = models.OneToOneField(
@@ -121,6 +127,13 @@ def save_user_profile(sender, instance, **kwargs):
     except Exception as e:
         logger.error(f"Error saving user profile for {instance.username}: {str(e)}")
 
+
+
+class SomeOtherModel(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
 
 class Account(models.Model):
     """

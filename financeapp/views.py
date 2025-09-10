@@ -43,12 +43,26 @@ class DecimalEncoder(json.JSONEncoder):
         if isinstance(obj, Decimal):
             return float(obj)
         return super().default(obj)
-
+    
+    # pages/views.py
+from django.shortcuts import redirect
+from allauth.account.views import LoginView
+from django_otp import user_has_device
 
 class CustomLoginView(LoginView):
     template_name = "account/login.html"
     redirect_authenticated_user = True
 
+    def form_valid(self, form):
+        # First, let allauth handle the login
+        response = super().form_valid(form)
+        
+        # Now check if the authenticated user has 2FA enabled
+        if user_has_device(self.request.user):
+            # Redirect to 2FA verification
+            return redirect('two_factor:login')
+        
+        return response
 
 # ----------------- Helper Functions -----------------
 def calculate_trend(current, previous):

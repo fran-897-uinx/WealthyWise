@@ -10,6 +10,7 @@ import dj_database_url
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 from django.contrib.messages import constants as messages
+import phonenumbers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,7 +54,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "django.contrib.sites",
-    "allauth_ui",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -67,6 +67,11 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "allauth.socialaccount.providers.google",
     "financeapp",
+    'django_otp',
+    'django_otp.plugins.otp_totp',  # Time-based OTP
+    'django_otp.plugins.otp_static',  # Static backup codes
+    'two_factor',
+    'two_factor.plugins.phonenumber'
 ]
 
 MIDDLEWARE = [
@@ -76,6 +81,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    'django_otp.middleware.OTPMiddleware',
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
@@ -198,6 +204,9 @@ CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", EMAIL_HOST_USER)
 # Allauth settings
 SITE_ID = 1
 
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
@@ -207,11 +216,8 @@ ACCOUNT_FORMS = {
     'signup': 'financeapp.forms.CustomSignupForm',
 }
 
-ALLAUTH_UI_THEME = 'dark'  # or 'tailwind', 'material'
-ALLAUTH_UI_PATH = 'allauth_ui'   # default path
 
-# Allauth account settings
-# Authentication methods (NEW WAY)
+
 ACCOUNT_LOGIN_METHODS = {'email'}  # Use only email for authentication
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # Required signup fields
 
@@ -223,8 +229,13 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True  # Auto login after confirmation
 # URL settings
 ACCOUNT_SIGNUP_REDIRECT_URL = "/"
 LOGIN_REDIRECT_URL = "/"
-LOGIN_URL = "/accounts/login/"
+LOGIN_URL = "account_login"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
+
+TWO_FACTOR_PATCH_ADMIN = False  # Do not patch admin for 2FA
+TWO_FACTOR_REMOVE_SUCCESS_URL = 'two_factor:profile'
+# Add to your settings.py
+ACCOUNT_ADAPTER = 'financeapp.adapters.CustomAccountAdapter'
 
 # Additional recommended settings
 ACCOUNT_EMAIL_SUBJECT_PREFIX = 'WealthyWise'
@@ -325,10 +336,6 @@ if os.environ.get("REDIS_URL"):
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
-
-# Crispy forms
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Messages framework
 MESSAGE_TAGS = {

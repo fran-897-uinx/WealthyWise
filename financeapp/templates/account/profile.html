@@ -476,6 +476,39 @@
             </div>
         </div>
 
+         <div class="stat-card accounts">
+            <div class="stat-header">
+                <div class="stat-icon">💼</div>
+                <div class="stat-title">Security Status</div>
+            </div>
+            <div class="stat-value">
+                {{ user.otp_device ? "Enabled" : "Not Enabled" }}
+            </div>
+                {% if not user.otp_device %}
+          <div class="alert alert-warning stat-subtitle" role="alert">
+            <h5>🔒 Enhance Your Security</h5>
+            <p>Two-factor authentication is not enabled on your account.</p>
+            <a
+              href="{% url 'two_factor:setup' %}"
+              class="btn btn-primary btn-sm"
+            >
+              Enable 2FA Now
+            </a>
+          </div>
+          {% else %}
+          <div class="alert alert-success">
+            <h5>✅ Excellent Security</h5>
+            <p>Two-factor authentication is protecting your account.</p>
+            <a
+              href="{% url 'two_factor:profile' %}"
+              class="btn btn-outline-success btn-sm"
+            >
+              Manage 2FA Settings
+            </a>
+          </div>
+          {% endif %}
+        </div>
+
         <div class="stat-card amount">
             <div class="stat-header">
                 <div class="stat-icon">💰</div>
