@@ -34,6 +34,19 @@ from .models import (
 )
 from .forms import TransactionForm, AccountForm, UserProfileForm, UserForm, ContactForm
 from django.db.models import Sum, Count, Q, Case, When, Value, F, DecimalField
+from django.core.cache import cache
+
+
+# Example of caching usage in a view
+@login_required
+def my_view(request):
+    data = cache.get("my_cached_key")
+    if data is None:
+        # Data not in cache, fetch from database or perform computation
+        data = "Some data fetched from the database"
+        cache.set("my_cached_key", data, timeout=300)  # Cache for 5 minutes
+
+        return HttpResponse(data)
 
 
 class DecimalEncoder(json.JSONEncoder):
@@ -43,9 +56,8 @@ class DecimalEncoder(json.JSONEncoder):
         if isinstance(obj, Decimal):
             return float(obj)
         return super().default(obj)
-    
+
     # pages/views.py
-from django.shortcuts import redirect
 from allauth.account.views import LoginView
 from django_otp import user_has_device
 

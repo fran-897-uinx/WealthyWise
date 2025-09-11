@@ -17,10 +17,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables
 from dotenv import load_dotenv
+
 load_dotenv(BASE_DIR / ".env")
 
 # Security settings
-SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-fallback-key-for-development-only")
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "django-insecure-fallback-key-for-development-only"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
@@ -29,7 +32,7 @@ DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 # Render-specific settings
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
@@ -38,7 +41,9 @@ if os.environ.get("DOMAIN"):
     ALLOWED_HOSTS.append(os.environ.get("DOMAIN"))
 
 # CSRF trusted origins
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "http://localhost,http://127.0.0.1").split(",")
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "CSRF_TRUSTED_ORIGINS", "http://localhost,http://127.0.0.1"
+).split(",")
 if RENDER_EXTERNAL_HOSTNAME:
     CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
 if os.environ.get("DOMAIN"):
@@ -67,11 +72,11 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "allauth.socialaccount.providers.google",
     "financeapp",
-    'django_otp',
-    'django_otp.plugins.otp_totp',  # Time-based OTP
-    'django_otp.plugins.otp_static',  # Static backup codes
-    'two_factor',
-    'two_factor.plugins.phonenumber'
+    "django_otp",
+    "django_otp.plugins.otp_totp",  # Time-based OTP
+    "django_otp.plugins.otp_static",  # Static backup codes
+    "two_factor",
+    "two_factor.plugins.phonenumber",
 ]
 
 MIDDLEWARE = [
@@ -81,7 +86,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    'django_otp.middleware.OTPMiddleware',
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
@@ -114,22 +119,21 @@ WSGI_APPLICATION = "finance.wsgi.application"
 
 # Database configuration
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DB_NAME"),
-        'USER': os.environ.get("DB_USER"),
-        'PASSWORD': os.environ.get("DB_PASSWORD"),
-        'HOST': os.environ.get("DB_HOST"),
-        'PORT': os.environ.get("DB_PORT", "5432"),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
     }
 }
 
-if os.environ.get('DATABASE_URL'):
+if os.environ.get("DATABASE_URL"):
     import dj_database_url
-    DATABASES['default'] = dj_database_url.config(
-        default=os.environ['DATABASE_URL'],
-        conn_max_age=600,
-        ssl_require=True
+
+    DATABASES["default"] = dj_database_url.config(
+        default=os.environ["DATABASE_URL"], conn_max_age=600, ssl_require=True
     )
 
 # Password validation
@@ -141,7 +145,7 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
         "OPTIONS": {
             "min_length": 8,
-        }
+        },
     },
     {
         "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
@@ -159,21 +163,21 @@ USE_L10N = True
 USE_TZ = True
 
 LANGUAGES = [
-    ('en', _('English')),
-    ('fr', _('French')),
-    ('es', _('Spanish')),
-    ('ja', _('Japanese')),
+    ("en", _("English")),
+    ("fr", _("French")),
+    ("es", _("Spanish")),
+    ("ja", _("Japanese")),
 ]
 
 LOCALE_PATHS = [
-    BASE_DIR / 'locale',
+    BASE_DIR / "locale",
 ]
 
 # settings.py
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
+    BASE_DIR / "static",
 ]
 STORAGES = {
     "staticfiles": {
@@ -185,14 +189,16 @@ STORAGES = {
 WHITENOISE_MANIFEST_STRICT = False
 
 # Media files
-MEDIA_URL = '/media/'
+MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Email configuration
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
+)
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
@@ -213,16 +219,15 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 ACCOUNT_FORMS = {
-    'signup': 'financeapp.forms.CustomSignupForm',
+    "signup": "financeapp.forms.CustomSignupForm",
 }
 
 
-
-ACCOUNT_LOGIN_METHODS = {'email'}  # Use only email for authentication
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # Required signup fields
+ACCOUNT_LOGIN_METHODS = {"email"}  # Use only email for authentication
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]  # Required signup fields
 
 # Email settings
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Require email verification
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # Require email verification
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True  # Auto login after confirmation
 
 
@@ -233,33 +238,29 @@ LOGIN_URL = "account_login"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 TWO_FACTOR_PATCH_ADMIN = False  # Do not patch admin for 2FA
-TWO_FACTOR_REMOVE_SUCCESS_URL = 'two_factor:profile'
+TWO_FACTOR_REMOVE_SUCCESS_URL = "two_factor:profile"
 # Add to your settings.py
-ACCOUNT_ADAPTER = 'financeapp.adapters.CustomAccountAdapter'
+ACCOUNT_ADAPTER = "financeapp.adapters.CustomAccountAdapter"
 
 # Additional recommended settings
-ACCOUNT_EMAIL_SUBJECT_PREFIX = 'WealthyWise'
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'  # Use 'https' in production
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "WealthyWise"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"  # Use 'https' in production
 ACCOUNT_MAX_EMAIL_ADDRESSES = 2  # Limit email addresses per account
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 
 # Rate limiting
 ACCOUNT_RATE_LIMITS = {
-    'login_failed': '5/5m',  # 5 failed logins per 5 minutes
-    'signup': '20/1h',       # 20 signups per hour
-    'password_reset': '5/1h', # 5 password resets per hour
+    "login_failed": "5/5m",  # 5 failed logins per 5 minutes
+    "signup": "20/1h",  # 20 signups per hour
+    "password_reset": "5/1h",  # 5 password resets per hour
 }
 
-# Session settings
-ACCOUNT_LOGOUT_ON_GET = True 
-ACCOUNT_SESSION_REMEMBER = True  # Remember login
-ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 # Security settings for production
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     CSRF_COOKIE_HTTPONLY = True
@@ -272,7 +273,7 @@ if not DEBUG:
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Logging configuration
-LOG_DIR = BASE_DIR / 'logs'
+LOG_DIR = BASE_DIR / "logs"
 LOG_DIR.mkdir(exist_ok=True)
 
 if DEBUG:
@@ -320,41 +321,97 @@ else:
         },
     }
 
-# Cache settings
+# settings.py
+# Cache settings - MOVE THIS HIGHER in your settings, before test/Sentry sections
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "unique-snowflake",
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     }
 }
 
-if os.environ.get("REDIS_URL"):
+
+from urllib.parse import urlparse
+
+# Get the Redis URL from the environment
+REDIS_URL = os.environ.get("REDIS_URL")
+
+if REDIS_URL:
+    # Override default cache to use Redis
     CACHES["default"] = {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get("REDIS_URL"),
+        "LOCATION": REDIS_URL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
+            "PASSWORD": urlparse(REDIS_URL).password or None,
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
+            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
+            "IGNORE_EXCEPTIONS": True,
+        },
+        "KEY_PREFIX": "financeapp",
     }
+
+    # Use the environment variables directly (they're already set in .env)
+    CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "memory://")
+    CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "cache+memory://")
+
+else:
+    # Fallback for local development
+    CELERY_BROKER_URL = "memory://"
+    CELERY_RESULT_BACKEND = "cache+memory://"
+
+# Session settings - MOVE THIS AFTER CACHE CONFIGURATION
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+# Test settings - MUST COME AFTER ALL OTHER CONFIGURATIONS
+if "test" in sys.argv:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+    }
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
+
+    # OVERRIDE Redis config for tests - use local memory cache
+    CACHES["default"] = {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "test-cache",
+    }
+
+    # Use database sessions for tests
+    SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+    # Disable Celery during tests
+    CELERY_BROKER_URL = "memory://"
+    CELERY_RESULT_BACKEND = "cache+memory://"
+
+
+# Session settings (will use the cache backend above)
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+
 
 # Messages framework
 MESSAGE_TAGS = {
-    messages.DEBUG: 'alert-secondary',
-    messages.INFO: 'alert-info',
-    messages.SUCCESS: 'alert-success',
-    messages.WARNING: 'alert-warning',
-    messages.ERROR: 'alert-danger',
+    messages.DEBUG: "alert-secondary",
+    messages.INFO: "alert-info",
+    messages.SUCCESS: "alert-success",
+    messages.WARNING: "alert-warning",
+    messages.ERROR: "alert-danger",
 }
 
 # Custom app settings
 APP_SETTINGS = {
-    'site_name': 'WealthyWise',
-    'currency': 'NGN',
-    'default_theme': 'dark',
-    'enable_notifications': True,
-    'enable_auto_categorize': True,
-    'enable_two_factor': False,
-    'enable_email_alerts': True,
+    "site_name": "WealthyWise",
+    "currency": "NGN",
+    "default_theme": "dark",
+    "enable_notifications": True,
+    "enable_auto_categorize": True,
+    "enable_two_factor": False,
+    "enable_email_alerts": True,
 }
 
 # File upload settings
@@ -363,34 +420,8 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 FILE_UPLOAD_PERMISSIONS = 0o644
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
 
-
 # DeepL translation
-DEEPL_AUTH_KEY = os.getenv("DEEPL_AUTH_KEY")
-
-# Test settings
-if 'test' in sys.argv:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
-    PASSWORD_HASHERS = [
-        'django.contrib.auth.hashers.MD5PasswordHasher',
-    ]
-
-# Optional: Sentry integration
-if not DEBUG and os.environ.get('SENTRY_DSN'):
-    try:
-        import sentry_sdk
-        from sentry_sdk.integrations.django import DjangoIntegration
-        
-        sentry_sdk.init(
-            dsn=os.environ.get('SENTRY_DSN'),
-            integrations=[DjangoIntegration()],
-            traces_sample_rate=0.1,
-            send_default_pii=False
-        )
-    except ImportError:
-        pass
+# DEEPL_AUTH_KEY = os.getenv("DEEPL_AUTH_KEY")
 
 # Whitenoise configuration
 WHITENOISE_MAX_AGE = 31536000
@@ -398,7 +429,26 @@ WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
 
 # Add connection pooling for production database
-if not DEBUG and 'DATABASE_URL' in os.environ:
-    DATABASES['default']['CONN_MAX_AGE'] = 600
+if not DEBUG and "DATABASE_URL" in os.environ:
+    DATABASES["default"]["CONN_MAX_AGE"] = 600
 
 
+# Optional: Sentry integration - SHOULD BE LAST
+if not DEBUG and os.environ.get("SENTRY_DSN"):
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+        from sentry_sdk.integrations.redis import RedisIntegration
+
+        sentry_sdk.init(
+            dsn=os.environ.get("SENTRY_DSN"),
+            integrations=[
+                DjangoIntegration(),
+                RedisIntegration(),  # Add Redis integration
+            ],
+            traces_sample_rate=0.1,
+            send_default_pii=False,
+            environment="production" if os.environ.get("RENDER") else "development",
+        )
+    except ImportError:
+        pass
