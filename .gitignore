@@ -14,6 +14,7 @@ db.sqlite3
 env/
 node_modules/
 tailwiind.config.js
+static/css.output.css
 
 # IDEs
 .vscode/

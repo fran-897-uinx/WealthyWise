@@ -1,14 +1,9 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
-    './templates/**/*.html',
-    './financeapp/templates/**/*.html',
-    './allauth_ui/**/*.html'
+    "./templates/**/*.html",
+    "./financeapp/templates/**/*.html",
+    "./allauth_ui/**/*.html",
   ],
-  theme: {
-    extend: {},
-  },
-  plugins: [
-    require('daisyui')
-  ],
-}
+  plugins: [require("daisyui")],
+};
