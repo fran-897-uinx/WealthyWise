@@ -1,6 +1,7 @@
 {% extends "layout.html" %} 
 {% block content %}
 {% load bootstrap5 %} 
+{% load custom_filters %}
 {% bootstrap_css %} {% bootstrap_javascript %}
 <style>
     
@@ -482,7 +483,7 @@
                 <div class="stat-title">Security Status</div>
             </div>
             <div class="stat-value">
-                {{ user.otp_device ? "Enabled" : "Not Enabled" }}
+               {{ user.otp_device|ternary:"Enabled,Not Enabled" }}
             </div>
                 {% if not user.otp_device %}
           <div class="alert alert-warning stat-subtitle" role="alert">
