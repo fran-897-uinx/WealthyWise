@@ -43,6 +43,12 @@ if RENDER_EXTERNAL_HOSTNAME:
 if os.environ.get("DOMAIN"):
     ALLOWED_HOSTS.append(os.environ.get("DOMAIN"))
 
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        # Add other origins as needed
+    ]
+
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = os.environ.get(
     "CSRF_TRUSTED_ORIGINS", "http://localhost,http://127.0.0.1"
@@ -70,6 +76,7 @@ INSTALLED_APPS = [
     "allauth.usersessions",
     "widget_tweaks",
     "slippers",
+    "corsheaders",
     "crispy_forms",
     "crispy_bootstrap5",
     "bootstrap5",
@@ -84,6 +91,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

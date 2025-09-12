@@ -1,0 +1,12 @@
+# Always use LF for code
+*.py text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+
+# Allow Windows endings only for batch scripts
+*.bat text eol=crlf
