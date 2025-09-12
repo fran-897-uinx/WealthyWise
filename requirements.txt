@@ -2,8 +2,10 @@ amqp==5.3.1
 annotated-types==0.7.0
 anyio==4.10.0
 asgiref==3.9.1
+asn1crypto==1.5.1
 beautifulsoup4==4.13.4
 billiard==4.2.1
+cbor2==5.7.0
 celery==5.5.3
 certifi==2025.8.3
 cffi==1.17.1
@@ -24,6 +26,7 @@ django-cors-headers==4.8.0
 django-crispy-forms==2.4
 django-formtools==2.5.1
 django-otp==1.6.1
+django-otp-yubikey==1.1.0
 django-phonenumber-field==8.1.0
 django-redis==6.0.0
 django-tailwind==4.2.0
@@ -45,9 +48,11 @@ pillow==11.3.0
 prompt_toolkit==3.0.52
 psycopg2-binary==2.9.10
 pycparser==2.22
+pycryptodome==3.23.0
 pydantic==2.11.7
 pydantic_core==2.33.2
 PyJWT==2.10.1
+pyOpenSSL==25.1.0
 pypng==0.20220715.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
@@ -71,4 +76,6 @@ tzdata==2025.2
 urllib3==2.5.0
 vine==5.1.0
 wcwidth==0.2.13
+webauthn==2.7.0
 whitenoise==6.9.0
+YubiOTP==1.0.0
