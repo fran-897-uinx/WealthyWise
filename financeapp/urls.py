@@ -8,10 +8,8 @@ from two_factor.urls import urlpatterns as tf_urls
 # from allauth_ui.views import LoginView, SignupView
 
 urlpatterns = [
-    # Home redirect → decides whether to send user to signup or dashboard
     path("", views.home_redirect, name="home"),
-    # Authentication
-    path("signup/", views.signup, name="signup"),
+    path("signup/", views.signup_view, name="signup"),
     path(
         "login/",
         auth_views.LoginView.as_view(template_name="account/login.html"),
@@ -19,7 +17,6 @@ urlpatterns = [
     ),
     path("logout/", auth_views.LogoutView.as_view(next_page="home"), name="logout"),
     path("accounts/2fa/", include(tf_urls)),
-    path("accounts/", include("allauth.urls")),
     # Profile routes
     path("profile/", views.profile_view, name="profile"),
     path("edit-profile/", views.edit_profile, name="edit_profile"),

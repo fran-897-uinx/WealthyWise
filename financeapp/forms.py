@@ -1,13 +1,18 @@
 from django import forms
 from django.contrib.auth.models import User
-from allauth.account.forms import SignupForm
 from .models import Transaction, Account, UserProfile, ContactMessage
 from django.contrib.auth import authenticate
 
-class CustomSignupForm(SignupForm):
+
+class CustomSignupForm(forms.ModelForm):
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ["username", "password", "first_name", "last_name", "email"]
+
     def save(self, request):
         user = super().save(request)
         user.first_name = self.cleaned_data['first_name']
@@ -15,6 +20,7 @@ class CustomSignupForm(SignupForm):
         user.email = self.cleaned_data["email"]
         user.save()
         return user
+
 
 class TransactionForm(forms.ModelForm):
     class Meta:

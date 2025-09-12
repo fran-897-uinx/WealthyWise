@@ -5,7 +5,7 @@
     <!-- CSS -->
     {% bootstrap_css %}
     <!-- JS -->
-    {% bootstrap_javascript %} {% load static %}
+    {% bootstrap_javascript %}
 
     <!-- Charset & Viewport -->
     <meta charset="UTF-8" />
@@ -36,7 +36,6 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link rel="stylesheet" href="{% static 'allauth_ui/output.css' %}" />
 
     <!-- Favicon -->
     <!-- <link rel="icon" type="image/png" href="/financeapp/static/images/logo.png" /> -->
@@ -946,10 +945,13 @@
                 <a
                   style="text-decoration: none"
                   class="setting-label"
-                  href="{% url 'two_factor:profile' %}"
+                  href="{% url 'two_factor:setup' %}"
                 >
                   Enable Two Factor Authentication
                 </a>
+              </div>
+              <div class="setting-item">
+                <a href="{% url 'two_factor:disable' %}">Disable Two-Factor Authentication</a>
               </div>
               <div class="setting-item">
                 <span class="setting-label">Language</span>

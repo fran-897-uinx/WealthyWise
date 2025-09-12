@@ -79,8 +79,13 @@ INSTALLED_APPS = [
     "django_otp",
     "django_otp.plugins.otp_totp",  # Time-based OTP
     "django_otp.plugins.otp_static",  # Static backup codes
+    "django_otp.plugins.otp_email",  # <- if you want email capability.
     "two_factor",
-    "two_factor.plugins.phonenumber",
+    "two_factor.plugins.phonenumber",  # <- if you want phone number capability.
+    "two_factor.plugins.email",  # <- if you want email capability.
+    "two_factor.plugins.yubikey",
+    "otp_yubikey",
+    "two_factor.plugins.webauthn",
 ]
 
 MIDDLEWARE = [
@@ -226,12 +231,16 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
+    "two_factor.backends.TwoFactorAuthBackend",
 ]
 
 
 TWO_FACTOR_PATCH_ADMIN = False  # Do not patch admin for 2FA
 TWO_FACTOR_REMOVE_SUCCESS_URL = "two_factor:profile"
 # Add to your settings.py
+TWO_FACTOR_WEBAUTHN_RP_NAME = "wealthywise"
+TWO_FACTOR_WEBAUTHN_RP_ID = None
+TWO_FACTOR_WEBAUTHN_ORIGIN = None
 
 # Limit email addresses per account
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"

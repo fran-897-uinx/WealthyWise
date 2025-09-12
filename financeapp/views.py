@@ -436,7 +436,7 @@ def landing(request):
         )
 
 
-# ----------------- User Authentication Views -----------------
+# ----------------- User Authentication Views -----------------"""  """
 def signup_view(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
@@ -446,7 +446,7 @@ def signup_view(request):
             # Send welcome email
             send_mail(
                 subject="Welcome to WealthyWise!",
-                message="Thank you for signing up. We're glad to have you!",
+                message="Signup successful ✅ You can now log in and start exploring all the features waiting for you!",
                 from_email="noreply@wealthywise.com",
                 recipient_list=[user.email],
                 fail_silently=True,
