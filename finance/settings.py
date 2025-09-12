@@ -329,20 +329,25 @@ CACHES = {
     }
 }
 
-
+import ssl
 from urllib.parse import urlparse
 
 # Get the Redis URL from the environment
 REDIS_URL = os.environ.get("REDIS_URL")
 
+
 if REDIS_URL:
     # Override default cache to use Redis
+    use_ssl = "redns.redis-cloud.com" in REDIS_URL
+
     CACHES["default"] = {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": REDIS_URL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "PASSWORD": urlparse(REDIS_URL).password or None,
+            "SSL": use_ssl,
+            "SSL_CERT_REQS": None,  # Disable SSL certificate verification
             "SOCKET_CONNECT_TIMEOUT": 5,
             "SOCKET_TIMEOUT": 5,
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
@@ -363,6 +368,12 @@ else:
 # Session settings - MOVE THIS AFTER CACHE CONFIGURATION
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+
+
+# Disable Redis during migrations
+if "migrate" in sys.argv or "makemigrations" in sys.argv:
+    CACHES["default"] = {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}
+    SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 # Test settings - MUST COME AFTER ALL OTHER CONFIGURATIONS
 if "test" in sys.argv:
