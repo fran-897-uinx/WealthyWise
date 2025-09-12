@@ -43,6 +43,115 @@
    <script>
       const SAVE_SETTING_URL = "{% url 'save_setting' %}";
    </script>
+   <script>
+    function setTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+
+  // Sync the toggle switch UI
+  const darkModeToggle = document.getElementById("darkModeToggle");
+  if (darkModeToggle) {
+    darkModeToggle.classList.toggle("active", theme === "dark");
+  }
+
+  // Save to backend
+  saveSetting("theme", theme);
+}
+// CSRF helper
+function getCSRFToken() {
+  const name = "csrftoken";
+  const cookies = document.cookie.split("; ");
+  for (let cookie of cookies) {
+    if (cookie.startsWith(name + "=")) {
+      return cookie.split("=")[1];
+    }
+  }
+  return "";
+}
+
+// ===================== SAVE TO BACKEND ===================== //
+function saveSetting(key, value) {
+  fetch(SAVE_SETTING_URL, {   // ✅ now it works
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCSRFToken(),
+    },
+    body: JSON.stringify({ key, value }),
+  })
+  .then((res) => res.json())
+  .then((data) => {
+    if (data.success) {
+      console.log("Setting saved:", data.message);
+      showToast(data.message, "success");
+    } else {
+      console.error("Error saving setting:", data.message);
+      showToast("Error saving: " + data.message, "error");
+    }
+  })
+  .catch((err) => {
+    console.error("Error saving setting:", err);
+    showToast("Error saving setting", "error");
+  });
+}
+
+function showToast(message, type = "success") {
+  let toastContainer = document.getElementById("toastContainer");
+  if (!toastContainer) {
+    toastContainer = document.createElement("div");
+    toastContainer.id = "toastContainer";
+    toastContainer.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    `;
+    document.body.appendChild(toastContainer);
+  }
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.style.cssText = `
+    background: white;
+    color:#0a0a0f;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    border-left: 4px solid ${type === "success" ? "#10b981" : "#ef4444"};
+  `;
+
+  const icon = type === "success" ? "✅" : "❌";
+  toast.innerHTML = `
+    <span class="toast-icon">${icon}</span>
+    <span class="toast-message">${message}</span>
+  `;
+
+  toastContainer.appendChild(toast);
+
+  setTimeout(() => (toast.style.transform = "translateX(0)"), 100);
+  setTimeout(() => {
+    toast.style.transform = "translateX(100%)";
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+function handleToggle(elementId, settingKey) {
+  const toggle = document.getElementById(elementId);
+  toggle.classList.toggle("active");
+
+  const isEnabled = toggle.classList.contains("active");
+  localStorage.setItem(settingKey, isEnabled);
+  saveSetting(settingKey, isEnabled);
+}
+
+
+   </script>
   </head>
   <style>
     * {
@@ -832,6 +941,7 @@ body {
         {% endblock %}
       </main>
     </div>
+    {% block scripts %}
     <script>
       
 
@@ -846,7 +956,7 @@ function toggleSidebar() {
   }
 }
 
-toggleSidebar();
+// toggleSidebar();
 
 // ===================== THEME SYSTEM ===================== //
 document.addEventListener("DOMContentLoaded", () => {
@@ -934,14 +1044,6 @@ function toggleEmailAlerts() {
 }
 
 // Generic toggle function
-function handleToggle(elementId, settingKey) {
-  const toggle = document.getElementById(elementId);
-  toggle.classList.toggle("active");
-
-  const isEnabled = toggle.classList.contains("active");
-  localStorage.setItem(settingKey, isEnabled);
-  saveSetting(settingKey, isEnabled);
-}
 
 // ===================== SELECT HANDLERS ===================== //
 if (document.getElementById("languageSelect")) {
@@ -960,91 +1062,9 @@ if (document.getElementById("currencySelect")) {
   });
 }
 
-// ===================== SAVE TO BACKEND ===================== //
-function saveSetting(key, value) {
-  fetch(SAVE_SETTING_URL, {   // ✅ now it works
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": getCSRFToken(),
-    },
-    body: JSON.stringify({ key, value }),
-  })
-  .then((res) => res.json())
-  .then((data) => {
-    if (data.success) {
-      console.log("Setting saved:", data.message);
-      showToast(data.message, "success");
-    } else {
-      console.error("Error saving setting:", data.message);
-      showToast("Error saving: " + data.message, "error");
-    }
-  })
-  .catch((err) => {
-    console.error("Error saving setting:", err);
-    showToast("Error saving setting", "error");
-  });
-}
 
-// CSRF helper
-function getCSRFToken() {
-  const name = "csrftoken";
-  const cookies = document.cookie.split("; ");
-  for (let cookie of cookies) {
-    if (cookie.startsWith(name + "=")) {
-      return cookie.split("=")[1];
-    }
-  }
-  return "";
-}
 
 // ===================== TOAST NOTIFICATIONS ===================== //
-function showToast(message, type = "success") {
-  let toastContainer = document.getElementById("toastContainer");
-  if (!toastContainer) {
-    toastContainer = document.createElement("div");
-    toastContainer.id = "toastContainer";
-    toastContainer.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-    `;
-    document.body.appendChild(toastContainer);
-  }
-
-  const toast = document.createElement("div");
-  toast.className = `toast toast-${type}`;
-  toast.style.cssText = `
-    background: white;
-    color:#0a0a0f;
-    border-radius: 8px;
-    padding: 16px 20px;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-    border-left: 4px solid ${type === "success" ? "#10b981" : "#ef4444"};
-  `;
-
-  const icon = type === "success" ? "✅" : "❌";
-  toast.innerHTML = `
-    <span class="toast-icon">${icon}</span>
-    <span class="toast-message">${message}</span>
-  `;
-
-  toastContainer.appendChild(toast);
-
-  setTimeout(() => (toast.style.transform = "translateX(0)"), 100);
-  setTimeout(() => {
-    toast.style.transform = "translateX(100%)";
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
-}
-
 
 // ===================== SETTINGS PANEL ===================== //
 function initSettingsPanel() {
@@ -1072,5 +1092,6 @@ document.addEventListener("DOMContentLoaded", initSettingsPanel);
 
 
     </script>
+    {%endblock%}
   </body>
 </html>

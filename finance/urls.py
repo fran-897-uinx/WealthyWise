@@ -18,10 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import handler404, handler500
 from django.shortcuts import render
+from django.conf import settings
 
 urlpatterns = [
-    path("admin/", admin.site.urls),              # Django Admin
-    path("accounts/", include("allauth.urls")),   # AllAuth
+    path(f"{settings.ADMIN_URL}", admin.site.urls),  # Django Admin
+    path("accounts/", include("allauth.urls")),  # AllAuth
     path("", include("financeapp.urls")),
     # path('accounts/', include('allauth_ui.urls')),  # Allauth UI URLs
 ]

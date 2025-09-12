@@ -31,6 +31,9 @@ DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 # Allowed hosts
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
+# Custom admin URL for security
+ADMIN_URL = os.environ.get("ADMIN_URL", "admin/")
+
 # Render-specific settings
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
@@ -59,6 +62,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "django.contrib.sites",
+    "allauth_ui",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -173,6 +177,9 @@ LOCALE_PATHS = [
     BASE_DIR / "locale",
 ]
 
+ALLAUTH_UI_THEME = "dark"
+PHONENUMBERS_DEFAULT_REGION = "NG"
+
 # settings.py
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -187,6 +194,12 @@ STORAGES = {
 
 # Allow WhiteNoise to not fail if a static file is missing in manifest
 WHITENOISE_MANIFEST_STRICT = False
+
+WHITENOISE_IGNORE_PATTERNS = [
+    # Add any other patterns for files that shouldn't be served
+    r".*/\.",  # Hidden files
+    r".*\.map",  # Source maps
+]
 
 # Media files
 MEDIA_URL = "/media/"
@@ -247,6 +260,7 @@ ACCOUNT_EMAIL_SUBJECT_PREFIX = "WealthyWise"
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"  # Use 'https' in production
 ACCOUNT_MAX_EMAIL_ADDRESSES = 2  # Limit email addresses per account
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+CSRF_COOKIE_HTTPONLY = TrueSESSION_COOKIE_HTTPONLY = True
 
 
 # Rate limiting

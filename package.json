@@ -2,7 +2,9 @@
   "name": "finance-app",
   "version": "1.0.0",
   "scripts": {
-    "build:css": "npx tailwindcss -i ./allauth_ui/input.css -o ./allauth_ui/output.css --minify"
+    "dev": "npx tailwindcss --input ./assets/src/input.css --output ./static/css/output.css --watch",
+    "build": "npx tailwindcss --input ./assets/src/input.css --output ./static/css/output.css --minify",
+    "collectstatic": "python manage.py collectstatic --noinput"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
