@@ -1,2 +1,2 @@
 #!/bin/bash
-pip freeze > requirement.txt
+pip freeze > requirements.txt

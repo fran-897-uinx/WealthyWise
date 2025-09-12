@@ -7,11 +7,12 @@ from django.contrib.auth import authenticate
 class CustomSignupForm(SignupForm):
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
-    
+    email = forms.EmailField(required=True)
     def save(self, request):
         user = super().save(request)
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
+        user.email = self.cleaned_data["email"]
         user.save()
         return user
 

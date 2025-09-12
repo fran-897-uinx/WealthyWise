@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import logout as auth_logout, login, update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
@@ -19,9 +20,6 @@ from django.conf import settings
 from django.core.mail import send_mail, BadHeaderError
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from django.dispatch import receiver
-from allauth.account.signals import user_logged_in
-from django.contrib.auth.views import LoginView
 from django.db.models.functions import ExtractMonth, ExtractYear
 from datetime import datetime, timedelta
 from .models import (
@@ -35,6 +33,7 @@ from .models import (
 from .forms import TransactionForm, AccountForm, UserProfileForm, UserForm, ContactForm
 from django.db.models import Sum, Count, Q, Case, When, Value, F, DecimalField
 from django.core.cache import cache
+from django_otp import user_has_device
 
 
 # Example of caching usage in a view
@@ -57,24 +56,23 @@ class DecimalEncoder(json.JSONEncoder):
             return float(obj)
         return super().default(obj)
 
-    # pages/views.py
-from allauth.account.views import LoginView
-from django_otp import user_has_device
 
-class CustomLoginView(LoginView):
-    template_name = "account/login.html"
-    redirect_authenticated_user = True
+# ---------------login view =----------------
 
-    def form_valid(self, form):
-        # First, let allauth handle the login
-        response = super().form_valid(form)
-        
-        # Now check if the authenticated user has 2FA enabled
-        if user_has_device(self.request.user):
-            # Redirect to 2FA verification
-            return redirect('two_factor:login')
-        
-        return response
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("landing")
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect("landing")
+    else:
+        form = AuthenticationForm()
+    return render(request, "account/login.html", {"form": form})
+
 
 # ----------------- Helper Functions -----------------
 def calculate_trend(current, previous):
@@ -439,15 +437,21 @@ def landing(request):
 
 
 # ----------------- User Authentication Views -----------------
-def signup(request):
-    if request.user.is_authenticated:
-        return redirect("landing")
+def signup_view(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("landing")
+            # Send welcome email
+            send_mail(
+                subject="Welcome to WealthyWise!",
+                message="Thank you for signing up. We're glad to have you!",
+                from_email="noreply@wealthywise.com",
+                recipient_list=[user.email],
+                fail_silently=True,
+            )
+            return redirect("landing")  # Change to your home page
     else:
         form = UserCreationForm()
     return render(request, "account/signup.html", {"form": form})
@@ -458,12 +462,6 @@ def custom_logout(request):
     auth_logout(request)
     messages.info(request, "You have been logged out 👋")
     return redirect("signup")
-
-
-@receiver(user_logged_in)
-def redirect_first_login(sender, request, user, **kwargs):
-    if not user.last_login:
-        return redirect("welcome")
 
 
 # ----------------- Profile Views -----------------

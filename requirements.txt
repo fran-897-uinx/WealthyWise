@@ -19,8 +19,6 @@ distro==1.9.0
 dj-database-url==3.0.1
 Django==4.2.23
 django-admin-volt==1.0.17
-django-allauth==65.11.2
-django-allauth-ui==1.8.1
 django-bootstrap-v5==1.0.11
 django-cors-headers==4.8.0
 django-crispy-forms==2.4

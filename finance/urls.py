@@ -22,9 +22,8 @@ from django.conf import settings
 
 urlpatterns = [
     path(f"{settings.ADMIN_URL}", admin.site.urls),  # Django Admin
-    path("accounts/", include("allauth.urls")),  # AllAuth
+    path("", include("two_factor.urls", "two_factor")),  # Two-Factor Auth
     path("", include("financeapp.urls")),
-    # path('accounts/', include('allauth_ui.urls')),  # Allauth UI URLs
 ]
 
 

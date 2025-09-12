@@ -68,12 +68,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "django.contrib.sites",
-    "allauth_ui",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.mfa",
-    "allauth.usersessions",
     "widget_tweaks",
     "slippers",
     "corsheaders",
@@ -81,7 +75,6 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     "bootstrap5",
     "whitenoise.runserver_nostatic",
-    "allauth.socialaccount.providers.google",
     "financeapp",
     "django_otp",
     "django_otp.plugins.otp_totp",  # Time-based OTP
@@ -101,7 +94,6 @@ MIDDLEWARE = [
     "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
     "django.middleware.locale.LocaleMiddleware",
 ]
 
@@ -185,7 +177,7 @@ LOCALE_PATHS = [
     BASE_DIR / "locale",
 ]
 
-ALLAUTH_UI_THEME = "dark"
+
 PHONENUMBERS_DEFAULT_REGION = "NG"
 
 # settings.py
@@ -228,56 +220,23 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", EMAIL_HOST_USER)
 
-# Allauth settings
-SITE_ID = 1
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-ACCOUNT_FORMS = {
-    "signup": "financeapp.forms.CustomSignupForm",
-}
-
-
-ACCOUNT_LOGIN_METHODS = {"email"}  # Use only email for authentication
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]  # Required signup fields
-
-# Email settings
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # Require email verification
-ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True  # Auto login after confirmation
-
-
-# URL settings
-ACCOUNT_SIGNUP_REDIRECT_URL = "/"
-LOGIN_REDIRECT_URL = "/"
-LOGIN_URL = "account_login"
-ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 TWO_FACTOR_PATCH_ADMIN = False  # Do not patch admin for 2FA
 TWO_FACTOR_REMOVE_SUCCESS_URL = "two_factor:profile"
 # Add to your settings.py
-ACCOUNT_ADAPTER = "financeapp.adapters.CustomAccountAdapter"
 
-# Additional recommended settings
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "WealthyWise"
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"  # Use 'https' in production
-ACCOUNT_MAX_EMAIL_ADDRESSES = 2  # Limit email addresses per account
+# Limit email addresses per account
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
-CSRF_COOKIE_HTTPONLY = TrueSESSION_COOKIE_HTTPONLY = True
-
-
-# Rate limiting
-ACCOUNT_RATE_LIMITS = {
-    "login_failed": "5/5m",  # 5 failed logins per 5 minutes
-    "signup": "20/1h",  # 20 signups per hour
-    "password_reset": "5/1h",  # 5 password resets per hour
-}
-
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = True
 
 # Security settings for production
 if not DEBUG:
@@ -419,12 +378,6 @@ if "test" in sys.argv:
     # Disable Celery during tests
     CELERY_BROKER_URL = "memory://"
     CELERY_RESULT_BACKEND = "cache+memory://"
-
-
-# Session settings (will use the cache backend above)
-ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_SESSION_REMEMBER = True
-ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 
 # Messages framework
