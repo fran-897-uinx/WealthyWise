@@ -16,7 +16,7 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(next_page="home"), name="logout"),
-    path("accounts/2fa/", include(tf_urls)),
+    path("account/2fa/", include(tf_urls)),
     # Profile routes
     path("profile/", views.profile_view, name="profile"),
     path("edit-profile/", views.edit_profile, name="edit_profile"),

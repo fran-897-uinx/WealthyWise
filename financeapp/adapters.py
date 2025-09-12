@@ -9,5 +9,5 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         Redirect to 2FA if enabled, otherwise use default redirect
         """
         if user_has_device(request.user):
-            return '/accounts/2fa/login/'
+            return "/2fa/login/"
         return super().get_login_redirect_url(request)
