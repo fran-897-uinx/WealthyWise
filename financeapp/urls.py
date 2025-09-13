@@ -32,7 +32,6 @@ urlpatterns = [
     # Budgets
     path("budgets/insights/", views.budget_insights_view, name="budget_insights"),
     path("budgets/", views.budget_manager, name="budget_manager"),
-    path("budgets/add/", views.add_budget_view, name="add_budget"),
     path("budgets/delete/<int:budget_id>/", views.delete_budget, name="delete_budget"),
     # TODO: add budget_manager + delete_budget views
     # AI Chat
