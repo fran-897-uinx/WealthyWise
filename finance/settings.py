@@ -235,6 +235,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
+SITE_ID = 1
+
 TWO_FACTOR_PATCH_ADMIN = False  # Do not patch admin for 2FA
 TWO_FACTOR_REMOVE_SUCCESS_URL = "two_factor:profile"
 # Add to your settings.py
