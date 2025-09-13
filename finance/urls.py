@@ -23,7 +23,7 @@ from two_factor.urls import urlpatterns as tf_urls
 
 urlpatterns = [
     path(f"{settings.ADMIN_URL}", admin.site.urls),
-    path("", include(tf_urls)),
+    path("account/", include(tf_urls)),
     path("", include("financeapp.urls")),
 ]
 
