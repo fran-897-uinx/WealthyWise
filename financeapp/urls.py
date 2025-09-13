@@ -5,29 +5,24 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from two_factor.urls import urlpatterns as tf_urls
-# from allauth_ui.views import LoginView, SignupView
 
 urlpatterns = [
     path("", views.home_redirect, name="home"),
     path("signup/", views.signup_view, name="signup"),
-    path(
-        "login/",
-        auth_views.LoginView.as_view(template_name="account/login.html"),
-        name="login",
-    ),
-    path("logout/", auth_views.LogoutView.as_view(next_page="home"), name="logout"),
+    path("login/", views.login_view, name="login"),  # Use your custom login view
+    path("logout/", views.custom_logout, name="logout"),  # Use your custom logout
     path("account/2fa/", include(tf_urls)),
     # Profile routes
     path("profile/", views.profile_view, name="profile"),
     path("edit-profile/", views.edit_profile, name="edit_profile"),
     path("profile/delete/", views.delete_user_account, name="delete_user_account"),
     # Dashboard + Transactions
-    path("dashboard/", views.landing, name="landing"),
+    path("dashboard/", views.landing, name="landing"),  # This matches your redirect
     path("transaction/", views.transaction, name="transaction"),
     path("add-transaction/", views.add_transaction, name="add_transaction"),
     path("export-csv/", views.export_csv, name="export_csv"),
-    # Account Dashboard
-    path("account_dashboard/", views.cards, name="account_dashboard"),
+    # Account Dashboard - FIXED: Either create cards view or change this
+    path("accounts/", views.cards, name="account_dashboard"),  # Changed path
     path("update-account/", views.update_account, name="update_account"),
     path("delete-account/", views.delete_account, name="delete_account"),
     # User settings
@@ -42,6 +37,7 @@ urlpatterns = [
     path("budgets/", views.budget_manager, name="budget_manager"),
     path("budgets/delete/<int:budget_id>/", views.delete_budget, name="delete_budget"),
     path("budgets/insights/", views.budget_insights, name="budget_insights"),
+    # Password reset
     path(
         "password_reset/",
         auth_views.PasswordResetView.as_view(

@@ -1,38 +1,31 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="{{ user_theme|default:'dark' }}">
-  <head>
-    {% load static %} {% load bootstrap5 %} 
-    {% bootstrap_css %} {% bootstrap_javascript %} 
+<head>
+    {% load static %}
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="WealthyWise - Manage your expenses, transactions, and reports easily."
-    />
+    <meta name="description" content="WealthyWise - Manage your expenses, transactions, and reports easily." />
     <meta name="author" content="CodeSmith" />
     <meta property="og:title" content="WealthyWise" />
-    <meta
-      property="og:description"
-      content="Track and analyze your finances with ease."
-    />
+    <meta property="og:description" content="Track and analyze your finances with ease." />
     <meta property="og:type" content="website" />
     <meta name="theme-color" content="#0a0a0f" />
 
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <title>{{ app_settings.site_name|default:"WealthyWise" }}</title>
+    <!-- CORRECTED: Use firstof instead of filter for safer fallback -->
+    <title>{% firstof app_settings.site_name "WealthyWise" %}</title>
 
-    <style>
+    
+ <style>
       * {
         margin: 0;
         padding: 0;
@@ -369,144 +362,139 @@
         }
       }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="app-container">
-      <!-- Mobile Toggle Button -->
-      <p class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-      </p>
+        <!-- Mobile Toggle Button -->
+        <p class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </p>
 
-      <!-- Mobile Overlay -->
-      <div
-        class="mobile-overlay"
-        id="mobileOverlay"
-        onclick="toggleSidebar()"
-      ></div>
+        <!-- Mobile Overlay -->
+        <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
 
-      <!-- Sidebar Navigation -->
-      <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <div class="brand">
-            {{ app_settings.site_name|default:"WealthyWise" }}
-          </div>
-        </div>
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <!-- CORRECTED: Use firstof for safer fallback -->
+                <div class="brand">
+                    {% firstof app_settings.site_name "WealthyWise" %}
+                </div>
+            </div>
 
-        <div class="sidebar-nav">
-          <!-- Safe Navigation Links -->
+            <div class="sidebar-nav">
+                <!-- CORRECTED: Use proper URL names that match your urls.py -->
+                <div class="nav-item">
+                    <a href="{% url 'landing' %}" class="nav-link">
+                        <div class="nav-icon"><i class="fas fa-home"></i></div>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </div>
 
-          <div class="nav-item">
-            <a href="{% url 'profile' %}" class="nav-link">
-              <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
-              <span class="nav-text">Profile</span>
-            </a>
-          </div>
+                <div class="nav-item">
+                    <a href="{% url 'account_dashboard' %}" class="nav-link">
+                        <div class="nav-icon"><i class="fas fa-credit-card"></i></div>
+                        <span class="nav-text">Accounts</span>
+                    </a>
+                </div>
 
-          <div class="nav-item">
-            <a href="{% url 'landing' %}" class="nav-link"
-              ><div class="nav-icon"><i class="fas fa-home"></i></div>
-              <span class="nav-text">Home</span></a
-            >
-          </div>
+                <div class="nav-item">
+                    <a href="{% url 'transaction' %}" class="nav-link">
+                        <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
+                        <span class="nav-text">Transactions</span>
+                    </a>
+                </div>
 
-          <div class="nav-item">
-            <a href="{% url 'account_dashboard' %}" class="nav-link"
-              ><div class="nav-icon"><i class="fas fa-credit-card"></i></div>
-              <span class="nav-text">Accounts</span></a
-            >
-          </div>
+                <div class="nav-item">
+                    <a href="{% url 'budget_manager' %}" class="nav-link">
+                        <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
+                        <span class="nav-text">Budgets</span>
+                    </a>
+                </div>
 
-          <div class="nav-item">
-            <a href="{% url 'transaction' %}" class="nav-link"
-              ><div class="nav-icon"><i class="fas fa-chart-line"></i></div>
-              <span class="nav-text">Dashboard</span></a
-            >
-          </div>
+                <div class="nav-item">
+                    <a href="{% url 'profile' %}" class="nav-link">
+                        <div class="nav-icon"><i class="fas fa-user"></i></div>
+                        <span class="nav-text">Profile</span>
+                    </a>
+                </div>
 
-          <div class="nav-item">
-            <a href="{% url 'budget_manager' %}" class="nav-link"
-              ><div class="nav-icon"><i class="fas fa-chart-pie me-2"></i></div>
-              <span class="nav-text">Budgets</span></a
-            >
-          </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon"><i class="fas fa-cog"></i></div>
+                        <span class="nav-text">Settings</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'faq' %}" class="nav-link">
+                        <div class="nav-icon"><i class="fas fa-question-circle"></i></div>
+                        <span class="nav-text">FAQ</span>
+                    </a>
+                </div>
+            </div>
 
-          <div class="nav-item">
-            <a href="#" class="nav-link">
-              <div class="nav-icon"><i class="fas fa-cog"></i></div>
-              <span class="nav-text">Settings</span>
-            </a>
-          </div>
-          <div class="nav-item">
-            <a href="{% url 'faq' %}" class="nav-link"
-              ><div class="nav-icon">
-                <i class="fas fa-question-circle"></i>
-              </div>
-              <span class="nav-text">FAQ</span></a
-            >
-          </div>
-        </div>
+            <!-- Footer -->
+            <div class="sidebar-footer">
+                {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="logout-text">Logout</span>
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="logout-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span class="logout-text">Login</span>
+                </a>
+                {% endif %}
+            </div>
+        </nav>
 
-        <!-- Footer -->
-        <div class="sidebar-footer">
-          {% if user.is_authenticated %}
-          <a href="{% url 'logout' %}" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i>
-            <span class="logout-text">Logout</span>
-          </a>
-          {% else %}
-          <a href="{% url 'login' %}" class="logout-btn">
-            <i class="fas fa-sign-in-alt"></i>
-            <span class="logout-text">Login</span>
-          </a>
-          {% endif %}
-        </div>
-      </nav>
-
-      <!-- Main Content Area -->
-      <main class="main-content" id="mainContent">
-        {% block content %}
-        <!-- Your page content will be injected here -->
-        {% endblock %}
-      </main>
+        <!-- Main Content Area -->
+        <main class="main-content" id="mainContent">
+            {% block content %}
+            <!-- Your page content will be injected here -->
+            {% endblock %}
+        </main>
     </div>
 
+    <!-- JavaScript for Sidebar Toggle and Theme System --> 
     <script>
-      // ===================== SIDEBAR TOGGLE ===================== //
-      function toggleSidebar() {
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("mobileOverlay");
+        // ===================== SIDEBAR TOGGLE ===================== //
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("mobileOverlay");
 
-        if (sidebar && overlay) {
-          sidebar.classList.toggle("open");
-          overlay.classList.toggle("show");
+            if (sidebar && overlay) {
+                sidebar.classList.toggle("open");
+                overlay.classList.toggle("show");
+            }
         }
-      }
 
-      // ===================== THEME SYSTEM ===================== //
-      document.addEventListener("DOMContentLoaded", () => {
-        // Load saved theme or use default
-        const savedTheme = localStorage.getItem("theme") || "dark";
-        document.documentElement.setAttribute("data-theme", savedTheme);
+        // ===================== THEME SYSTEM ===================== //
+        document.addEventListener("DOMContentLoaded", () => {
+            // Load saved theme or use default
+            const savedTheme = localStorage.getItem("theme") || "dark";
+            document.documentElement.setAttribute("data-theme", savedTheme);
 
-        // Simple theme toggle for demonstration
-        const themeToggle = document.getElementById("themeToggle");
-        if (themeToggle) {
-          themeToggle.addEventListener("click", () => {
-            const currentTheme =
-              document.documentElement.getAttribute("data-theme");
-            const newTheme = currentTheme === "dark" ? "light" : "dark";
-            document.documentElement.setAttribute("data-theme", newTheme);
-            localStorage.setItem("theme", newTheme);
-          });
-        }
-      });
+            // Simple theme toggle for demonstration
+            const themeToggle = document.getElementById("themeToggle");
+            if (themeToggle) {
+                themeToggle.addEventListener("click", () => {
+                    const currentTheme = document.documentElement.getAttribute("data-theme");
+                    const newTheme = currentTheme === "dark" ? "light" : "dark";
+                    document.documentElement.setAttribute("data-theme", newTheme);
+                    localStorage.setItem("theme", newTheme);
+                });
+            }
+        });
 
-      // ===================== SAFE ERROR HANDLING ===================== //
-      window.addEventListener("error", (e) => {
-        console.log("Error caught:", e.error);
-        // Prevent breaking the entire page
-        return true;
-      });
+        // ===================== SAFE ERROR HANDLING ===================== //
+        window.addEventListener("error", (e) => {
+            console.log("Error caught:", e.error);
+            // Prevent breaking the entire page
+            return true;
+        });
     </script>
-  </body>
+</body>
 </html>
