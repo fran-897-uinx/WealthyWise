@@ -3,7 +3,7 @@
   <head>
     {% load static %} {% load bootstrap5 %} {% bootstrap_css %} 
     {% bootstrap_javascript %}
-
+    {% load static %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
@@ -395,18 +395,25 @@
 
         <div class="sidebar-nav">
           <!-- Safe Navigation Links -->
-          <div class="nav-item">
-            <a href="{% url 'landing' %}" class="nav-link">
-              <div class="nav-icon"><i class="fas fa-home"></i></div>
-              <span class="nav-text">Home</span>
-            </a>
+           <div class="nav-item">
+            <a href="{% url 'landing' %}" class="nav-link"
+              ><div class="nav-icon"><i class="fas fa-home"></i></div>
+              <span class="nav-text">Home</span></a
+            >
           </div>
 
-          <div class="nav-item">
-            <a href="{% url 'account_dashboard' %}" class="nav-link">
-              <div class="nav-icon"><i class="fas fa-credit-card"></i></div>
-              <span class="nav-text">Accounts</span>
-            </a>
+            <div class="nav-item">
+            <a href="{% url 'account_dashboard' %}" class="nav-link"
+              ><div class="nav-icon"><i class="fas fa-credit-card"></i></div>
+              <span class="nav-text">Accounts</span></a
+            >
+          </div>
+
+         <div class="nav-item">
+            <a href="{% url 'transaction' %}" class="nav-link"
+              ><div class="nav-icon"><i class="fas fa-chart-line"></i></div>
+              <span class="nav-text">Dashboard</span></a
+            >
           </div>
 
           <div class="nav-item">
@@ -416,18 +423,11 @@
             </a>
           </div>
 
-          <div class="nav-item">
-            <a href="{% url 'budget_manager' %}" class="nav-link">
-              <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
-              <span class="nav-text">Budgets</span>
-            </a>
-          </div>
-
-          <div class="nav-item">
-            <a href="{% url 'profile' %}" class="nav-link">
-              <div class="nav-icon"><i class="fas fa-user"></i></div>
-              <span class="nav-text">Profile</span>
-            </a>
+            <div class="nav-item">
+            <a href="{% url 'budget_manager' %}" class="nav-link"
+              ><div class="nav-icon"><i class="fas fa-chart-pie me-2"></i></div>
+              <span class="nav-text">Budgets</span></a
+            >
           </div>
 
           <div class="nav-item">
