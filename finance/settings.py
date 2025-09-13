@@ -218,7 +218,6 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "two_factor.backends.TwoFactorAuthBackend",
 ]
 
 SITE_ID = 1
