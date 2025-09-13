@@ -409,7 +409,11 @@ APP_SETTINGS = {
     "enable_email_alerts": True,
 }
 
-LOGIN_URL = "/account/login/"
+LOGIN_URL = "login/"
+LOGIN_REDIRECT_URL = "dashboard/"
+LOGOUT_REDIRECT_URL = "login/"
+
+
 # File upload settings
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
