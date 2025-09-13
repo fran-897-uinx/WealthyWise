@@ -436,17 +436,10 @@
 
             <!-- Footer -->
             <div class="sidebar-footer">
-                {% if user.is_authenticated %}
                 <a href="{% url 'logout' %}" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
                     <span class="logout-text">Logout</span>
                 </a>
-                {% else %}
-                <a href="{% url 'login' %}" class="logout-btn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span class="logout-text">Login</span>
-                </a>
-                {% endif %}
             </div>
         </nav>
 
