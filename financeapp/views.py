@@ -1,17 +1,18 @@
 import json
+import csv
 import requests
 from datetime import datetime, timedelta
 from collections import defaultdict
 from decimal import Decimal
 from dateutil.relativedelta import relativedelta
+
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import logout as auth_logout, login, update_session_auth_hash
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
@@ -21,7 +22,10 @@ from django.core.mail import send_mail, BadHeaderError
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.db.models.functions import ExtractMonth, ExtractYear
-from datetime import datetime, timedelta
+
+from django.core.cache import cache
+from django_otp import user_has_device
+
 from .models import (
     Account,
     Transaction,
@@ -31,9 +35,16 @@ from .models import (
     Budget,
 )
 from .forms import TransactionForm, AccountForm, UserProfileForm, UserForm, ContactForm
-from django.db.models import Sum, Count, Q, Case, When, Value, F, DecimalField
-from django.core.cache import cache
-from django_otp import user_has_device
+
+
+# ----------------- Utilities -----------------
+class DecimalEncoder(json.JSONEncoder):
+    """Custom JSON encoder for Decimal objects"""
+
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)
 
 
 # Example of caching usage in a view
@@ -45,33 +56,7 @@ def my_view(request):
         data = "Some data fetched from the database"
         cache.set("my_cached_key", data, timeout=300)  # Cache for 5 minutes
 
-        return HttpResponse(data)
-
-
-class DecimalEncoder(json.JSONEncoder):
-    """Custom JSON encoder for Decimal objects"""
-
-    def default(self, obj):
-        if isinstance(obj, Decimal):
-            return float(obj)
-        return super().default(obj)
-
-
-# ---------------login view =----------------
-
-
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect("landing")
-    if request.method == "POST":
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect("landing")
-    else:
-        form = AuthenticationForm()
-    return render(request, "account/login.html", {"form": form})
+    return HttpResponse(data)
 
 
 # ----------------- Helper Functions -----------------
@@ -207,236 +192,50 @@ def rate_expenditure(total_income, total_expenses):
     else:
         return "(High expenses compared to income)"
 
+    # ----------------- Landing Page -----------------
 
-# ----------------- Landing Page -----------------
+
 @login_required
 def landing(request):
     """Main dashboard view with comprehensive financial analysis"""
-    try:
-        # Get user accounts
-        accounts = Account.objects.filter(user=request.user, is_active=True)
-        total_balance = (
-            sum(account.balance for account in accounts)
-            if accounts
-            else Decimal("0.00")
-        )
+    transactions = Transaction.objects.filter(user=request.user).order_by("-date")[:5]
+    accounts = Account.objects.filter(user=request.user)
+    budgets = Budget.objects.filter(user=request.user)
 
-        # Get date ranges for analysis
-        today = timezone.now().date()
-        first_day_current = today.replace(day=1)
+    total_balance = sum(acc.balance for acc in accounts)
+    total_budget = sum(b.amount for b in budgets)
+    spent_budget = sum(
+        t.amount for t in transactions if t.transaction_type == "expense"
+    )
 
-        # Handle case where previous month calculation might fail
-        try:
-            first_day_previous = (first_day_current - timedelta(days=1)).replace(day=1)
-        except:
-            if first_day_current.month == 1:
-                first_day_previous = first_day_current.replace(
-                    year=first_day_current.year - 1, month=12
-                )
-            else:
-                first_day_previous = first_day_current.replace(
-                    month=first_day_current.month - 1
-                )
-
-        # Current month transactions
-        current_month_income = Transaction.objects.filter(
-            user=request.user,
-            transaction_type="income",
-            date__year=first_day_current.year,
-            date__month=first_day_current.month,
-        ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
-
-        current_month_expenses = Transaction.objects.filter(
-            user=request.user,
-            transaction_type="expense",
-            date__year=first_day_current.year,
-            date__month=first_day_current.month,
-        ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
-
-        net_cash_flow = current_month_income - current_month_expenses
-
-        # Previous month transactions for comparison
-        previous_month_income = Transaction.objects.filter(
-            user=request.user,
-            transaction_type="income",
-            date__year=first_day_previous.year,
-            date__month=first_day_previous.month,
-        ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
-
-        previous_month_expenses = Transaction.objects.filter(
-            user=request.user,
-            transaction_type="expense",
-            date__year=first_day_previous.year,
-            date__month=first_day_previous.month,
-        ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
-
-        # Calculate trends
-        income_trend = calculate_trend(current_month_income, previous_month_income)
-        expense_trend = calculate_trend(current_month_expenses, previous_month_expenses)
-
-        # Get recent transactions
-        recent_transactions = (
-            Transaction.objects.filter(user=request.user)
-            .select_related("account")
-            .order_by("-date")[:10]
-        )
-
-        # Add color to each transaction for the UI
-        for transaction in recent_transactions:
-            if transaction.transaction_type == "income":
-                transaction.color = "#10b981"
-            elif transaction.category == "food":
-                transaction.color = "#f59e0b"
-            elif transaction.category == "transport":
-                transaction.color = "#3b82f6"
-            elif transaction.category == "utilities":
-                transaction.color = "#ef4444"
-            else:
-                transaction.color = "#6b7280"
-
-        # Category analysis
-        category_spending = (
-            Transaction.objects.filter(
-                user=request.user,
-                transaction_type="expense",
-                date__year=first_day_current.year,
-                date__month=first_day_current.month,
-            )
-            .values("category")
-            .annotate(total=Sum("amount"))
-            .order_by("-total")
-        )
-
-        # Top spending categories
-        top_categories = list(category_spending[:5])
-
-        # Account distribution
-        account_distribution = []
-        for account in accounts:
-            percentage = (
-                (account.balance / total_balance * 100) if total_balance > 0 else 0
-            )
-            account_distribution.append(
-                {
-                    "name": account.name,
-                    "balance": account.balance,
-                    "percentage": round(percentage, 1),
-                    "type": account.account_type,
-                }
-            )
-
-        # Financial health metrics
-        savings_rate = calculate_savings_rate(
-            current_month_income, current_month_expenses
-        )
-        emergency_fund_months = calculate_emergency_fund(
-            current_month_expenses, total_balance
-        )
-
-        # Calculate savings progress
-        savings_goal = total_balance * 3
-        savings_progress = (
-            min(100, (total_balance / savings_goal * 100)) if savings_goal > 0 else 0
-        )
-
-        # Get chart data
-        chart_data = {
-            "week": get_chart_data(request.user, "week"),
-            "month": get_chart_data(request.user, "month"),
-            "year": get_chart_data(request.user, "year"),
-        }
-
-        # Calculate expenditure rating (use monthly by default)
-        def rate_expenditure(income, expenses):
-            if income == 0:
-                return "No income data"
-            ratio = expenses / income
-            if ratio < 0.5:
-                return "Excellent spender 🟢 (Strong savings habits)"
-            elif ratio < 0.8:
-                return "Moderate spender 🟡 (Balanced spending and saving)"
-            else:
-                return "Overspender 🔴 (High expenses compared to income)"
-
-        expenditure_rating = rate_expenditure(
-            current_month_income, current_month_expenses
-        )
-
-        # Prepare top category data for JSON
-        if top_categories and len(top_categories) > 0:
-            top_category_json = json.dumps(
-                {
-                    "category": top_categories[0].get("category", "None"),
-                    "amount": float(top_categories[0].get("total", 0)),
-                }
-            )
-        else:
-            top_category_json = json.dumps({"category": "None", "amount": 0})
-
-        context = {
-            "accounts": accounts,
-            "total_balance": total_balance,
-            "monthly_income": current_month_income,
-            "monthly_expenses": current_month_expenses,
-            "net_balance": net_cash_flow,
-            "recent_transactions": recent_transactions,
-            "income_trend": income_trend,
-            "expense_trend": expense_trend,
-            "top_categories": top_categories,
-            "account_distribution": account_distribution,
-            "monthly_spending": get_monthly_spending_pattern(request.user),
-            "savings_rate": savings_rate,
-            "emergency_fund_months": emergency_fund_months,
-            "net_cash_flow": net_cash_flow,
-            "savings_goal": savings_goal,
-            "savings_progress": savings_progress,
-            "chart_data": json.dumps(chart_data, cls=DecimalEncoder),
-            "top_category_json": top_category_json,
-            "expenditure_rating": expenditure_rating,  # ✅ Added here
-        }
-
-        return render(request, "base.html", context)
-
-    except Exception as e:
-        import traceback
-
-        error_traceback = traceback.format_exc()
-        print(f"Error in landing view: {error_traceback}")
-
-        accounts = Account.objects.filter(user=request.user, is_active=True)
-        total_balance = (
-            sum(account.balance for account in accounts)
-            if accounts
-            else Decimal("0.00")
-        )
-
-        return render(
-            request,
-            "base.html",
-            {
-                "accounts": accounts,
-                "total_balance": total_balance,
-                "error": str(e),
-                "monthly_income": 0,
-                "monthly_expenses": 0,
-                "net_balance": 0,
-                "recent_transactions": [],
-                "savings_goal": 0,
-                "savings_progress": 0,
-                "chart_data": json.dumps(
-                    {
-                        "week": {"labels": [], "income": [], "expenses": []},
-                        "month": {"labels": [], "income": [], "expenses": []},
-                        "year": {"labels": [], "income": [], "expenses": []},
-                    }
-                ),
-                "top_category_json": json.dumps({"category": "None", "amount": 0}),
-                "expenditure_rating": "No data",  # fallback
-            },
-        )
+    context = {
+        "transactions": transactions,
+        "accounts": accounts,
+        "budgets": budgets,
+        "total_balance": total_balance,
+        "total_budget": total_budget,
+        "spent_budget": spent_budget,
+    }
+    return render(request, "dashboard.html", context)
 
 
-# ----------------- User Authentication Views -----------------"""  """
+# ----------------- Authentication Views -----------------
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("landing")
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect("landing")
+    else:
+        form = AuthenticationForm()
+    return render(request, "account/login.html", {"form": form})
+
+
 def signup_view(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
@@ -444,14 +243,19 @@ def signup_view(request):
             user = form.save()
             login(request, user)
             # Send welcome email
-            send_mail(
-                subject="Welcome to WealthyWise!",
-                message="Signup successful ✅ You can now log in and start exploring all the features waiting for you!",
-                from_email="noreply@wealthywise.com",
-                recipient_list=[user.email],
-                fail_silently=True,
-            )
-            return redirect("landing")  # Change to your home page
+            try:
+                send_mail(
+                    subject="Welcome to WealthyWise!",
+                    message="Signup successful ✅ You can now log in and start exploring all the features waiting for you!",
+                    from_email=getattr(
+                        settings, "DEFAULT_FROM_EMAIL", "noreply@wealthywise.com"
+                    ),
+                    recipient_list=[user.email],
+                    fail_silently=True,
+                )
+            except Exception:
+                pass
+            return redirect("landing")
     else:
         form = UserCreationForm()
     return render(request, "account/signup.html", {"form": form})
@@ -528,7 +332,7 @@ def edit_profile(request):
 
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 response_data = {"success": True, "message": success_msg}
-                if user.profile.avatar:
+                if hasattr(user.profile, "avatar") and user.profile.avatar:
                     response_data["avatar_url"] = user.profile.avatar.url
                 return JsonResponse(response_data)
 
@@ -603,10 +407,9 @@ def transaction(request):
     )
 
     # ---- CHART DATA (Weekly Income vs Expenses) ----
-    # Example: Replace with your actual helper function if available
     week_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
-    # Query weekly income/expenses
+    # Query weekly income/expenses using day-of-week (1=Sunday in Django by default for some locales).
     income_by_day = [
         float(
             Transaction.objects.filter(
@@ -630,11 +433,11 @@ def transaction(request):
         )
         for i in range(1, 8)
     ]
+
     chart_data = {
         "labels": [account.name for account in accounts],
         "data": [float(account.balance) for account in accounts],
     }
-
 
     # ---- Budgets ----
     budgets = Budget.objects.filter(user=request.user, month=first_day)
@@ -655,7 +458,9 @@ def transaction(request):
         )
 
     # ---- Context ----
-    transaction_categories = Transaction.CATEGORIES
+    transaction_categories = (
+        Transaction.CATEGORIES if hasattr(Transaction, "CATEGORIES") else []
+    )
     context = {
         "accounts": accounts,
         "total_balance": total_balance,
@@ -664,7 +469,7 @@ def transaction(request):
         "recent_transactions": recent_transactions,
         "budget_usage": budget_usage,
         "transaction_categories": transaction_categories,
-        "chart_data": json.dumps(chart_data),  # ✅ ready JSON
+        "chart_data": json.dumps(chart_data),
     }
 
     return render(request, "transaction.html", context)
@@ -765,7 +570,9 @@ def budget_manager(request):
 
     context = {
         "budgets": budget_data,
-        "categories": Transaction.CATEGORIES,
+        "categories": (
+            Transaction.CATEGORIES if hasattr(Transaction, "CATEGORIES") else []
+        ),
         "selected_month": selected_month.strftime("%Y-%m"),
         "selected_month_display": selected_month.strftime("%B %Y"),
         "month_options": month_options,
@@ -791,8 +598,8 @@ def delete_budget(request, budget_id):
 
 
 @login_required
-def budget_insights(request):
-    """View for budget analytics and insights"""
+def budget_insights_view(request):
+    """View for budget analytics and insights (alternate name to avoid collisions)"""
     today = timezone.now().date()
     current_month = today.replace(day=1)
 
@@ -815,31 +622,33 @@ def budget_insights(request):
     # Get budget history (last 6 months)
     budget_history = []
     for i in range(6, -1, -1):  # Last 6 months including current
-        month_date = current_month - timedelta(days=30 * i)
+        month_date = current_month - relativedelta(months=i)
         month_start = month_date.replace(day=1)
 
-    # Get total budget for this month
-    total_budget = (
-        Budget.objects.filter(user=request.user, month=month_start).aggregate(
-            total=Sum("amount")
-        )["total"]
-        or 0
-    )
+        total_budget = (
+            Budget.objects.filter(user=request.user, month=month_start).aggregate(
+                total=Sum("amount")
+            )["total"]
+            or 0
+        )
 
-    # Get total spending for this month
-    total_spent = (
-        Transaction.objects.filter(
-            user=request.user,
-            transaction_type="expense",
-            date__year=month_start.year,
-            date__month=month_start.month,
-        ).aggregate(total=Sum("amount"))["total"]
-        or 0
-    )
+        total_spent = (
+            Transaction.objects.filter(
+                user=request.user,
+                transaction_type="expense",
+                date__year=month_start.year,
+                date__month=month_start.month,
+            ).aggregate(total=Sum("amount"))["total"]
+            or 0
+        )
 
-    budget_history.append(
-        {"month": month_start, "total_budget": total_budget, "total_spent": total_spent}
-    )
+        budget_history.append(
+            {
+                "month": month_start,
+                "total_budget": total_budget,
+                "total_spent": total_spent,
+            }
+        )
 
     # Sort by month
     budget_history.sort(key=lambda x: x["month"])
@@ -864,6 +673,8 @@ def budget_insights(request):
     return render(request, "budget_insights.html", context)
 
 
+# ----------------- Add Transaction (API) -----------------
+@login_required
 @require_POST
 @csrf_protect
 def add_transaction(request):
@@ -888,7 +699,7 @@ def add_transaction(request):
                     {"success": False, "message": "Amount must be greater than zero"},
                     status=400,
                 )
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, InvalidOperation):
             return JsonResponse(
                 {"success": False, "message": "Invalid amount"}, status=400
             )
@@ -954,11 +765,9 @@ def add_transaction(request):
         )
 
 
+# ----------------- Export CSV -----------------
 @login_required
-def export_csv(request):
-    import csv
-    from django.http import HttpResponse
-
+def export_transactions_csv(request):
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = 'attachment; filename="financial_statement.csv"'
 
@@ -975,11 +784,19 @@ def export_csv(request):
         writer.writerow(
             [
                 transaction.date.strftime("%Y-%m-%d") if transaction.date else "",
-                transaction.get_transaction_type_display(),
+                (
+                    transaction.get_transaction_type_display()
+                    if hasattr(transaction, "get_transaction_type_display")
+                    else transaction.transaction_type
+                ),
                 transaction.description,
                 transaction.amount,
-                transaction.get_category_display(),
-                transaction.account.name,
+                (
+                    transaction.get_category_display()
+                    if hasattr(transaction, "get_category_display")
+                    else transaction.category
+                ),
+                transaction.account.name if transaction.account else "",
             ]
         )
 
@@ -990,7 +807,9 @@ def export_csv(request):
 @login_required
 def cards(request):
     accounts = Account.objects.filter(user=request.user)
-    total_balance = accounts.aggregate(Sum("balance"))["balance__sum"] or 0
+    total_balance = accounts.aggregate(Sum("balance"))["balance__sum"] or Decimal(
+        "0.00"
+    )
 
     if request.method == "POST":
         form = AccountForm(request.POST)
@@ -1011,7 +830,8 @@ def cards(request):
 
 @csrf_exempt
 @require_POST
-def update_account(request):
+def update_account_api(request):
+    """Update account via JSON API"""
     try:
         data = json.loads(request.body)
         account_id = data.get("account_id")
@@ -1020,7 +840,12 @@ def update_account(request):
         account_balance = data.get("account_balance")
         account_currency = data.get("account_currency")
 
-        account = get_object_or_404(Account, id=account_id, user=request.user)
+        account = get_object_or_404(Account, id=account_id)
+        # Ensure ownership
+        if account.user != request.user:
+            return JsonResponse(
+                {"success": False, "message": "Permission denied"}, status=403
+            )
 
         account.name = account_name
         account.account_type = account_type
@@ -1069,16 +894,16 @@ def delete_account(request):
 # ----------------- Settings Views -----------------
 @login_required
 def load_settings(request):
-    settings, created = UserSetting.objects.get_or_create(user=request.user)
+    user_settings_obj, created = UserSetting.objects.get_or_create(user=request.user)
     return JsonResponse(
         {
-            "notifications": settings.notifications_enabled,
-            "autoCategorize": settings.auto_categorize_enabled,
-            "language": settings.language,
-            "twoFactor": settings.two_factor_enabled,
-            "emailAlerts": settings.email_alerts_enabled,
-            "theme": settings.theme,
-            "currency": settings.currency,
+            "notifications": user_settings_obj.notifications_enabled,
+            "autoCategorize": user_settings_obj.auto_categorize_enabled,
+            "language": user_settings_obj.language,
+            "twoFactor": user_settings_obj.two_factor_enabled,
+            "emailAlerts": user_settings_obj.email_alerts_enabled,
+            "theme": user_settings_obj.theme,
+            "currency": user_settings_obj.currency,
         }
     )
 
@@ -1092,7 +917,9 @@ def save_setting(request):
         key = data.get("key")
         value = data.get("value")
 
-        user_settings, created = UserSetting.objects.get_or_create(user=request.user)
+        user_settings_obj, created = UserSetting.objects.get_or_create(
+            user=request.user
+        )
 
         setting_map = {
             "theme": "theme",
@@ -1105,8 +932,8 @@ def save_setting(request):
         }
 
         if key in setting_map:
-            setattr(user_settings, setting_map[key], value)
-            user_settings.save()
+            setattr(user_settings_obj, setting_map[key], value)
+            user_settings_obj.save()
 
         return JsonResponse({"success": True, "message": "Setting saved successfully"})
 
@@ -1123,7 +950,8 @@ def home_redirect(request):
 
 
 @csrf_exempt
-def chat_view(request):
+def external_chat_view(request):
+    """Forward messages to a local LLM endpoint and return response"""
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -1135,10 +963,15 @@ def chat_view(request):
                     "model": "llama3",
                     "messages": [{"role": "user", "content": user_message}],
                 },
+                timeout=10,
             )
 
             result = response.json()
-            bot_reply = result["message"]["content"]
+            bot_reply = (
+                result.get("message", {}).get("content")
+                if isinstance(result, dict)
+                else None
+            )
 
             return JsonResponse({"reply": bot_reply}, status=200)
 
@@ -1151,19 +984,19 @@ def chat_view(request):
 def FAQ(request):
     return render(request, "faq.html")
 
-# yourapp/context_processors.py
-from .models import UserSetting
 
+# ----------------- Context Processor -----------------
 def user_settings(request):
     if request.user.is_authenticated:
         try:
-            settings = UserSetting.objects.get(user=request.user)
-            return {"user_theme": settings.theme}
+            user_settings_obj = UserSetting.objects.get(user=request.user)
+            return {"user_theme": user_settings_obj.theme}
         except UserSetting.DoesNotExist:
             return {"user_theme": "light"}  # default
     return {"user_theme": "light"}
 
 
+# ----------------- Contact View -----------------
 def contact_view(request):
     if request.method == "POST":
         form = ContactForm(request.POST)
@@ -1179,7 +1012,9 @@ def contact_view(request):
                 Subject: {contact_message.subject}
                 Message: {contact_message.message}
                 """
-                from_email = settings.DEFAULT_FROM_EMAIL
+                from_email = getattr(
+                    settings, "DEFAULT_FROM_EMAIL", "noreply@wealthywise.com"
+                )
                 to_email = getattr(settings, "CONTACT_EMAIL", from_email)
 
                 send_mail(subject, message, from_email, [to_email], fail_silently=True)

@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import handler404, handler500
@@ -21,12 +22,21 @@ from django.shortcuts import render
 from django.conf import settings
 from two_factor.urls import urlpatterns as tf_urls
 
+
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
+
 urlpatterns = [
+    # Secure admin
     path(f"{settings.ADMIN_URL}", admin.site.urls),
+    # Two-Factor Authentication (keep only here, remove from app urls.py)
     path("account/", include(tf_urls)),
+    path("sentry-debug/", trigger_error),
     path("", include("financeapp.urls")),
 ]
 
+# Custom error handlers
 def custom_404(request, exception):
     return render(request, "404.html", status=404)
 

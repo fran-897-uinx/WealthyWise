@@ -3,40 +3,34 @@ from django.contrib.auth import views as auth_views
 from financeapp import views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
 from two_factor.urls import urlpatterns as tf_urls
 
 urlpatterns = [
-    path("", views.home_redirect, name="home"),
+    # Authentication
     path("signup/", views.signup_view, name="signup"),
-    path("login/", views.login_view, name="login"),  # Use your custom login view
-    path("logout/", views.custom_logout, name="logout"),  # Use your custom logout
-    path("account/2fa/", include(tf_urls)),
-    # Profile routes
-    path("profile/", views.profile_view, name="profile"),
-    path("edit-profile/", views.edit_profile, name="edit_profile"),
-    path("profile/delete/", views.delete_user_account, name="delete_user_account"),
+    path("login/", views.login_view, name="login"),
+    path("logout/", views.custom_logout, name="logout"),
     # Dashboard + Transactions
-    path("dashboard/", views.landing, name="landing"),  # This matches your redirect
-    path("transaction/", views.transaction, name="transaction"),
+    path("", views.landing, name="landing"),  # Home → dashboard
     path("add-transaction/", views.add_transaction, name="add_transaction"),
-    path("export-csv/", views.export_csv, name="export_csv"),
-    # Account Dashboard - FIXED: Either create cards view or change this
-    path("accounts/", views.cards, name="account_dashboard"),  # Changed path
-    path("update-account/", views.update_account, name="update_account"),
-    path("delete-account/", views.delete_account, name="delete_account"),
-    # User settings
-    path("load-settings/", views.load_settings, name="load_settings"),
+    path("export-csv/", views.export_transactions_csv, name="export_csv"),
+    # Accounts
+    path(
+        "accounts/update/<int:account_id>/",
+        views.update_account_api,
+        name="update_account",
+    ),
+    # TODO: add delete_account view if needed
+    # User settings (TODO: implement in views)
+    # path("load-settings/", views.load_settings, name="load_settings"),
     path("save-setting/", views.save_setting, name="save_setting"),
-    # AI chat
-    path("api/chat/", views.chat_view, name="chat"),
-    # FAQ
-    path("faq/", views.FAQ, name="faq"),
+    # Budgets
+    path("budgets/insights/", views.budget_insights_view, name="budget_insights"),
+    # TODO: add budget_manager + delete_budget views
+    # AI Chat
+    # path("api/chat/", views.external_chat_view, name="chat"),
+    # Contact (TODO: ensure contact_view exists in views.py)
     path("contact/", views.contact_view, name="contact"),
-    # budget
-    path("budgets/", views.budget_manager, name="budget_manager"),
-    path("budgets/delete/<int:budget_id>/", views.delete_budget, name="delete_budget"),
-    path("budgets/insights/", views.budget_insights, name="budget_insights"),
     # Password reset
     path(
         "password_reset/",
