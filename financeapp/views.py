@@ -981,7 +981,7 @@ def external_chat_view(request):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
-def FAQ(request):
+def faq_view(request):
     return render(request, "faq.html")
 
 
