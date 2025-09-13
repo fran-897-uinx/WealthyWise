@@ -112,10 +112,16 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "financeapp.context_processors.app_settings",
                 "financeapp.context_processors.user_settings",
+                "django.conf.settings",
             ],
         },
     },
 ]
+
+
+SITE_NAME = "WealthyWise.com"
+DOMAIN = "wealthywise.com"
+
 
 WSGI_APPLICATION = "finance.wsgi.application"
 
