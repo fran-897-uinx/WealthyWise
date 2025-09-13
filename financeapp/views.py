@@ -209,7 +209,7 @@ def rate_expenditure(total_income, total_expenses):
 
 
 # ----------------- Landing Page -----------------
-@login_required
+# @login_required
 def landing(request):
     """Main dashboard view with comprehensive financial analysis"""
     try:
