@@ -163,6 +163,10 @@
         flex: 1;
         padding: 0.4rem 0;
         overflow-y: auto;
+        gap: 1rem;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent) var(--bg);
+        
       }
       .nav-item {
         margin: 0.25rem 1rem;
@@ -213,6 +217,9 @@
         transition: var(--transition);
         white-space: nowrap;
         text-transform: capitalize;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        color: var(--text);
       }
       .sidebar.collapsed .nav-text {
         opacity: 0;

@@ -6,9 +6,21 @@
 {% load humanize %}
 
 <script>
-    window.chartData = JSON.parse('{{ chart_data|escapejs }}');
-    window.topCategoryData = JSON.parse('{{ top_category_json|escapejs }}');
+    try {
+        window.chartData = JSON.parse('{{ chart_data|default:"{}"|escapejs }}') || {};
+    } catch (e) {
+        console.error("Invalid chart_data:", e);
+        window.chartData = {};
+    }
+
+    try {
+        window.topCategoryData = JSON.parse('{{ top_category_json|default:"[]"|escapejs }}') || [];
+    } catch (e) {
+        console.error("Invalid top_category_json:", e);
+        window.topCategoryData = [];
+    }
 </script>
+
 <style>
   
   .dashboard {
@@ -1311,10 +1323,15 @@ function setupChartTabs() {
         });
     });
 }
-
 function initializeChart() {
     const ctx = document.getElementById('mainChart').getContext('2d');
-    const initialData = chartData.week;
+
+    // ✅ fallback if chartData or chartData.week is missing
+    const initialData = (chartData && chartData.week) ? chartData.week : {
+        labels: [],
+        income: [],
+        expenses: []
+    };
 
     mainChart = new Chart(ctx, {
         type: 'bar',
@@ -1348,14 +1365,17 @@ function initializeChart() {
 }
 
 function switchChart(period) {
-    if (!chartData[period]) return console.error("No data:", period);
+    if (!chartData || !chartData[period]) {
+        return console.error("No data:", period);
+    }
     const data = chartData[period];
-    mainChart.data.labels = data.labels;
-    mainChart.data.datasets[0].data = data.income;
-    mainChart.data.datasets[1].data = data.expenses;
+    mainChart.data.labels = data.labels || [];
+    mainChart.data.datasets[0].data = data.income || [];
+    mainChart.data.datasets[1].data = data.expenses || [];
     mainChart.config.type = (period === 'year') ? 'line' : 'bar';
     mainChart.update();
 }
+
 
 // =========================
 // Quick stats

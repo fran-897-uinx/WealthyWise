@@ -906,7 +906,7 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/35c4d7b2c1.js" crossorigin="anonymous"></script>
 <script>
   // Wait for DOM to be fully loaded
 document.addEventListener("DOMContentLoaded", function () {
@@ -927,6 +927,49 @@ document.addEventListener("DOMContentLoaded", function () {
     showToast && showToast("Configuration error: Transaction URL not set", "error");
     return;
   }
+
+
+// --- TYPE CARDS SETUP ---
+function initializeTypeCards(period = "month") {
+  try {
+    const chartDataElement = document.getElementById("chart-data");
+    if (!chartDataElement) {
+      console.warn("Chart data not found for type cards");
+      return;
+    }
+
+    const chartData = JSON.parse(chartDataElement.textContent);
+
+    // Fallback: use "month" if period doesn't exist
+    const data = chartData[period] || chartData;
+
+    // Defensive check
+    if (!data || !data.income || !data.expenses) {
+      console.warn("No income/expense data found for:", period);
+      return;
+    }
+
+    // Calculate totals
+    const totalIncome = data.income.reduce((a, b) => a + b, 0);
+    const totalExpenses = data.expenses.reduce((a, b) => a + b, 0);
+
+    // Update DOM
+    const incomeCard = document.getElementById("monthIncome");
+    const expenseCard = document.getElementById("monthExpense");
+
+    if (incomeCard) {
+      incomeCard.textContent = "₦" + totalIncome.toLocaleString("en-NG");
+    }
+    if (expenseCard) {
+      expenseCard.textContent = "₦" + totalExpenses.toLocaleString("en-NG");
+    }
+
+    console.log("Type cards updated for:", period);
+  } catch (err) {
+    console.error("Error in initializeTypeCards:", err);
+  }
+}
+
 
   // --- CHART INITIALIZATION ---
   initializeChart();

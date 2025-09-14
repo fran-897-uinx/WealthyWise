@@ -18,7 +18,7 @@
                                         <option value="{{ month.value }}" {% if month.selected %}selected{% endif %}>{{ month.display }}</option>
                                     {% endfor %}
                                 </select>
-                                <a href="{% url 'budget_insights' %}" class="btn btn-secondary" style=" width: auto; border-radius: 12px; margin-inline-end: 5px;">
+                                <a href="{% url 'budget_insights' %}" class="btn border-t-cyan-800" style=" width: auto; border-radius: 12px; margin-inline-end: 5px;">
                                 Insights
                                 </a>
                                 <a href="{% url 'transaction' %}" class="btn btn-light" style="width: auto; border-radius: 12px;">
@@ -39,7 +39,7 @@
                         {% endfor %}
                     {% endif %}
                     
-                    <div class="row mb-4">
+                    <div class="row mb-4 gap-1 ">
                         <div class="col-md-4">
                             <div class="card bg-light-success border-0">
                                 <div class="card-body text-center py-3">
