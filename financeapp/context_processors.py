@@ -2,7 +2,8 @@
 from .models import UserSetting
 from django.db.models import Sum
 from datetime import datetime, timedelta
-from .models import UserProfile, Account, Transaction, UserSetting
+from .models import UserProfile, Account, Transaction, UserSettinfroom 
+django.conf import settings
 
 def app_settings(request):
     try:
