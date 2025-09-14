@@ -12,6 +12,9 @@
   .transaction_app {
     padding: 1rem;
     font-family: system-ui, sans-serif;
+    background: var(--bg, );
+    min-height: 100vh;
+    color: var(--text, );
   }
   .fade-in {
     opacity: 0;
@@ -631,65 +634,104 @@
       console.log(e);
     }
   }
-  async function submitTransactionForm(e) {
-    e.preventDefault();
-    const f = e.target;
-    const url = f.dataset.url;
-    const btn = document.getElementById("saveTransactionBtn");
-    btn.disabled = true;
-    btn.textContent = "Saving...";
-    const data = new FormData(f);
-    const csrf = f.querySelector("input[name='csrfmiddlewaretoken']")?.value;
-    try {
-      const r = await fetch("{% url 'add_transaction' %}", {
-        method: "POST",
-        headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": csrf },
-        body: data,
-      });
-      const j = await r.json();
-      if (j.success) {
-        const tb = document.getElementById("transactionsTableBody");
-        if (tb && j.transaction) {
-          const t = j.transaction;
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td>${t.date_display}</td><td>${t.transaction_type}</td><td>${t.description}</td><td>${t.amount}</td><td>${t.account_name}</td>`;
-          tb.prepend(tr);
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("transactionForm");
+    const toastContainer = document.getElementById("toastContainer");
+    const transactionsTableBody = document.getElementById("transactionsTableBody");
+    const totalBalanceEl = document.getElementById("totalBalance");
+
+    if (!form) return;
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const url = form.dataset.url;
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch("{% url 'add_transaction' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrf,
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showToast(result.message, "success");
+
+                // Update total balance
+                if (totalBalanceEl) {
+                    totalBalanceEl.textContent = "₦" + parseFloat(result.total_balance).toLocaleString();
+                }
+
+                // Update account balance in card
+                const accountId = formData.get("account");
+                const accountBalanceEl = document.getElementById(`${accountId}-balance`);
+                if (accountBalanceEl) {
+                    accountBalanceEl.textContent = "₦" + parseFloat(result.new_balance).toLocaleString();
+                }
+
+                // Add new transaction to table
+                if (transactionsTableBody) {
+                    const t = result.transaction;
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${t.date}</td>
+                        <td class="${t.type === 'income' ? 'transaction-income' : 'transaction-expense'}">
+                            ${t.type === 'income' ? '📈 Income' : '📉 Expense'}
+                        </td>
+                        <td>${t.description}</td>
+                        <td class="${t.type === 'income' ? 'amount-positive' : 'amount-negative'}">
+                            ${t.type === 'income' ? '₦' : '-₦'}${parseFloat(t.amount).toLocaleString()}
+                        </td>
+                        <td>${form.querySelector('#account option:checked').textContent}</td>
+                    `;
+                    transactionsTableBody.prepend(row);
+                }
+
+                form.reset();
+                // reset type selection
+                document.querySelectorAll(".type-card").forEach(c => c.classList.remove("active"));
+                // hide modal
+                const modalEl = bootstrap.Modal.getInstance(document.getElementById("addTransactionModal"));
+                modalEl.hide();
+            } else {
+                showToast(result.message || "Failed to add transaction", "error");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Server error: " + err.message, "error");
         }
-        if (j.updated_account_id) {
-          const b = document.getElementById(
-            "account-" + j.updated_account_id + "-balance"
-          );
-          if (b)
-            b.textContent =
-              "₦" + parseFloat(j.updated_account_balance).toFixed(2);
-        }
-        if (j.new_total_balance !== undefined) {
-          document.getElementById("totalBalance").textContent =
-            "₦" + parseFloat(j.new_total_balance).toFixed(2);
-        }
-        showToast("Transaction saved");
-        bootstrap.Modal.getInstance(
-          document.getElementById("addTransactionModal")
-        ).hide();
-        f.reset();
-      } else {
-        showToast(j.message || "Error", "error");
-      }
-    } catch (err) {
-      showToast("Network error", "error");
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Save";
+    });
+
+    // --- Transaction Type Cards ---
+    document.querySelectorAll(".type-card").forEach(card => {
+        card.addEventListener("click", function () {
+            document.querySelectorAll(".type-card").forEach(c => c.classList.remove("active"));
+            this.classList.add("active");
+            document.getElementById("transactionType").value = this.dataset.type;
+        });
+    });
+
+    // --- Toast function ---
+    function showToast(message, type = "success") {
+        const toast = document.createElement("div");
+        toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'}`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.remove(); }, 4000);
+        setTimeout(() => { toast.classList.add("show"); }, 10);
     }
-  }
-  document.addEventListener("DOMContentLoaded", () => {
-    setDefaultDate();
-    initializeAccountBalanceDisplay();
-    initializeTypeCardsToggle();
-    initializeChart();
-    document
-      .getElementById("transactionForm")
-      .addEventListener("submit", submitTransactionForm);
-  });
+});
+  setDefaultDate();
+  initializeTypeCardsToggle();
+  initializeAccountBalanceDisplay();
+  initializeChart();
 </script>
 {% endblock %}
