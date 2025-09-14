@@ -112,7 +112,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "financeapp.context_processors.app_settings",
                 "financeapp.context_processors.user_settings",
-                "django.conf.settings",
+                "financeapp.context_processors.site_settings",
             ],
         },
     },

@@ -71,3 +71,10 @@ def user_settings(request):
         except UserSetting.DoesNotExist:
             return {"user_theme": "light"}  # default
     return {"user_theme": "light"}
+
+
+def site_settings(request):
+    return {
+        "SITE_NAME": getattr(settings, "SITE_NAME", "WealthyWise"),
+        "DOMAIN": getattr(settings, "DOMAIN", "wealthywise.com"),
+    }
