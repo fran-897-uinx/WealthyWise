@@ -1,630 +1,678 @@
-{% extends "layout.html" %} 
-{% block content %}
-{% load bootstrap5 %} 
-{% bootstrap_css %} 
-{% bootstrap_javascript %}
+{% extends "layout.html" %} {% block content %} {% load bootstrap5 %} 
+{% bootstrap_css %} {% bootstrap_javascript %}
 <style>
-    
-    a {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 25px;
-        text-decoration: none;
-    }
-    
-    a:hover {
-        color: #1e293b;
-    }
+  a {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 25px;
+    text-decoration: none;
+  }
 
+  a:hover {
+    color: #1e293b;
+  }
+
+  .profile-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    background: var(--panel);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .profile-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      #ff6b6b,
+      #4ecdc4,
+      #45b7d1,
+      #96ceb4,
+      #feca57
+    );
+    background-size: 400% 100%;
+    animation: gradient 3s ease infinite;
+  }
+
+  @keyframes gradient {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .avatar-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.8rem;
+    color: white;
+    font-weight: 700;
+    position: relative;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+
+  .avatar:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 0 20px 45px rgba(102, 126, 234, 0.6);
+  }
+
+  .avatar-status {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    background: #4ade80;
+    border-radius: 50%;
+    border: 3px solid white;
+    animation: pulse 2s infinite;
+  }
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .avatar-placeholder {
+    font-size: 3.5rem;
+    font-weight: bold;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .username {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .user-role {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin: 40px 0;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 30px var(--shadow);
+    border: 2px solid var(--card-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--card-color, linear-gradient(135deg, #667eea, #764ba2));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .stat-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .stat-card.email {
+    --card-color: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  }
+  .stat-card.joined {
+    --card-color: linear-gradient(135deg, #4ecdc4, #44a08d);
+  }
+  .stat-card.accounts {
+    --card-color: linear-gradient(135deg, #45b7d1, #2980b9);
+  }
+  .stat-card.amount {
+    --card-color: linear-gradient(135deg, #96ceb4, #27ae60);
+  }
+
+  .stat-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 15px;
+    background: var(--card-color);
+    color: var(--muted);
+  }
+
+  .stat-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .stat-subtitle {
+    font-size: 0.85rem;
+    color: #64748b;
+  }
+
+  .actions-section {
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .actions-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 25px;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .profile-btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 140px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .profile-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+
+  .profile-btn:hover::before {
+    left: 100%;
+  }
+
+  .profile-btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  }
+
+  .profile-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  .profile-btn-secondary {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  }
+
+  .profile-btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+  }
+
+  .profile-btn-outline {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+    text-decoration: none;
+  }
+
+  .profile-btn-outline:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .profile-btn-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+  }
+
+  .profile-btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+  }
+
+  /* Quick Actions */
+  .quick-actions {
+    margin-top: 35px;
+    padding-top: 35px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .quick-actions h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .quick-action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+  }
+
+  .quick-action {
+    background: var(--card-color);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 15px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .quick-action:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: #667eea;
+  }
+
+  .quick-action-icon {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    color: #667eea;
+  }
+
+  .quick-action-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
     .profile-container {
-        max-width: 1200px;
-        margin: 40px auto;
-        background: var(--panel);
-        backdrop-filter: blur(20px);
-        border-radius: 24px;
-        padding: 40px;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .profile-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
-        background-size: 400% 100%;
-        animation: gradient 3s ease infinite;
-    }
-
-    @keyframes gradient {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-
-    .profile-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 40px;
-        position: relative;
-    }
-
-    .avatar-wrapper {
-        position: relative;
-        margin-bottom: 20px;
-    }
-
-    .avatar {
-        width: 140px;
-        height: 140px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.8rem;
-        color: white;
-        font-weight: 700;
-        position: relative;
-        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        cursor: pointer;
-    }
-
-    .avatar:hover {
-        transform: scale(1.05) translateY(-5px);
-        box-shadow: 0 20px 45px rgba(102, 126, 234, 0.6);
-    }
-
-    .avatar-status {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        width: 20px;
-        height: 20px;
-        background: #4ade80;
-        border-radius: 50%;
-        border: 3px solid white;
-        animation: pulse 2s infinite;
-    }
-    .avatar img {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    
-    .avatar-placeholder {
-        font-size: 3.5rem;
-        font-weight: bold;
-    }
-    
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.1); opacity: 0.8; }
-        100% { transform: scale(1); opacity: 1; }
-    }
-
-    .username {
-        font-size: 2.2rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 8px;
-        text-align: center;
-    }
-
-    .user-role {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+      margin: 20px;
+      padding: 25px 20px;
+      border-radius: 20px;
     }
 
     .profile-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 25px;
-        margin: 40px 0;
-    }
-
-    .stat-card {
-        background:var(--card);
-        border-radius: 20px;
-        padding: 25px;
-        box-shadow: 0 10px 30px var(--shadow);
-        border: 2px solid var(--card-color);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--card-color, linear-gradient(135deg, #667eea, #764ba2));
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-    }
-
-    .stat-card:hover::before {
-        transform: scaleX(1);
-    }
-
-    .stat-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-    }
-
-    .stat-card.email { --card-color: linear-gradient(135deg, #ff6b6b, #ee5a24); }
-    .stat-card.joined { --card-color: linear-gradient(135deg, #4ecdc4, #44a08d); }
-    .stat-card.accounts { --card-color: linear-gradient(135deg, #45b7d1, #2980b9); }
-    .stat-card.amount { --card-color: linear-gradient(135deg, #96ceb4, #27ae60); }
-
-    .stat-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        margin-right: 15px;
-        background: var(--card-color);
-        color:var(--muted);
-    }
-
-    .stat-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .stat-value {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color:var(--text);
-        margin-bottom: 8px;
-    }
-
-    .stat-subtitle {
-        font-size: 0.85rem;
-        color: #64748b;
-    }
-
-    .actions-section {
-        margin-top: 40px;
-        text-align: center;
-    }
-
-    .actions-title {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 25px;
+      grid-template-columns: 1fr;
     }
 
     .action-buttons {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        flex-wrap: wrap;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .profile-btn{
-        padding: 14px 28px;
-        border: none;
-        border-radius: 14px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        min-width: 140px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .profile-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s ease;
-    }
-
-    .profile-btn:hover::before {
-        left: 100%;
-    }
-
-    .profile-btn-primary {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .profile-btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    }
-
-    .profile-btn-secondary {
-        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-        color: white;
-        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-    }
-
-    .profile-btn-secondary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
-    }
-
-    .profile-btn-outline {
-        background: transparent;
-        color: #667eea;
-        border: 2px solid #667eea;
-        text-decoration: none;
-    }
-
-    .profile-btn-outline:hover {
-        background: #667eea;
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    .profile-btn-danger {
-        background: linear-gradient(135deg, #dc3545, #c82333);
-        color: white;
-        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-    }
-
-    .profile-btn-danger:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
-    }
-
-    /* Quick Actions */
-    .quick-actions {
-        margin-top: 35px;
-        padding-top: 35px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .quick-actions h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 20px;
-        text-align: center;
+    .profile-btn {
+      width: 100%;
+      max-width: 300px;
     }
 
     .quick-action-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 15px;
+      grid-template-columns: repeat(3, 1fr);
     }
 
-    .quick-action {
-        background: var(--card-color);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 20px 15px;
-        box-shadow: var(--shadow);
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.5s ease;
-        text-decoration: none;
-        color: inherit;
+    .username {
+      font-size: 1.8rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .profile-container {
+      padding: 20px 15px;
+      margin: 10px;
     }
 
-    .quick-action:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        border-color: #667eea;
+    .avatar {
+      width: 120px;
+      height: 120px;
+      font-size: 2.4rem;
     }
 
-    .quick-action-icon {
-        font-size: 1.8rem;
-        margin-bottom: 8px;
-        color: #667eea;
+    .stat-card {
+      padding: 20px;
     }
 
-    .quick-action-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #64748b;
+    .quick-action-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .profile-container {
-            margin: 20px;
-            padding: 25px 20px;
-            border-radius: 20px;
-        }
-
-        .profile-stats {
-            grid-template-columns: 1fr;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .profile-btn {
-            width: 100%;
-            max-width: 300px;
-        }
-
-        .quick-action-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .username {
-            font-size: 1.8rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .profile-container {
-            padding: 20px 15px;
-            margin: 10px;
-        }
-
-        .avatar {
-            width: 120px;
-            height: 120px;
-            font-size: 2.4rem;
-        }
-
-        .stat-card {
-            padding: 20px;
-        }
-
-        .quick-action-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-
+  }
 </style>
 <div class="profile-container">
-    <!-- Profile Header -->
-    <div class="profile-header">
-        <div class="avatar-wrapper">
-            <div class="avatar" onclick="changeAvatar()">
-                {% if user.profile.avatar %}
-                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                {% else %}
-                    <div class="avatar-placeholder">
-                        {{ user.profile.get_initials }}
-                    </div>
-                {% endif %}
-                <div class="avatar-status"></div>
-            </div>
-        </div>
-        <div class="username">{{ user.get_full_name|default:user.username }}</div>
-        <div class="user-role">{{ user.profile.get_account_type_display }} Member</div>
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="avatar-wrapper">
+      <div class="avatar" onclick="changeAvatar()">
+        {% if user.profile.avatar %}
+        <img
+          src="{{ user.profile.avatar.url }}"
+          alt="{{ user.username }}"
+          style="
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+          "
+        />
+        {% else %}
+        <div class="avatar-placeholder">{{ user.profile.get_initials }}</div>
+        {% endif %}
+        <div class="avatar-status"></div>
+      </div>
+    </div>
+    <div class="username">{{ user.get_full_name|default:user.username }}</div>
+    <div class="user-role">
+      {{ user.profile.get_account_type_display }} Member
+    </div>
+  </div>
+
+  <!-- Profile Statistics -->
+  <div class="profile-stats">
+    <div class="stat-card email" onclick="editEmail()">
+      <div class="stat-header">
+        <div class="stat-icon">📧</div>
+        <div class="stat-title">Email Address</div>
+      </div>
+      <div class="stat-value">{{ user.email }}</div>
+      <div class="stat-subtitle">
+        {% if user.profile.email_verified %}Verified{% else %}Not Verified
+        {% endif %} • Last updated {{ user.profile.updated_at|date:"M j, Y" }}
+      </div>
     </div>
 
-    <!-- Profile Statistics -->
-    <div class="profile-stats">
-        <div class="stat-card email" onclick="editEmail()">
-            <div class="stat-header">
-                <div class="stat-icon">📧</div>
-                <div class="stat-title">Email Address</div>
-            </div>
-            <div class="stat-value">{{ user.email }}</div>
-            <div class="stat-subtitle">
-                {% if user.profile.email_verified %}Verified{% else %}Not Verified{% endif %} • 
-                Last updated {{ user.profile.updated_at|date:"M j, Y" }}
-            </div>
-        </div>
-
-        <div class="stat-card joined">
-            <div class="stat-header">
-                <div class="stat-icon">🗓️</div>
-                <div class="stat-title">Member Since</div>
-            </div>
-            <div class="stat-value">{{ user.date_joined|date:"M j, Y" }}</div>
-            <div class="stat-subtitle">Active member</div>
-        </div>
-
-        <div class="stat-card accounts">
-            <div class="stat-header">
-                <div class="stat-icon">💼</div>
-                <div class="stat-title">Active Accounts</div>
-            </div>
-            <div class="stat-value">{{ accounts|length }} Accounts</div>
-            <div class="stat-subtitle">
-                {% with savings_count=accounts|length %}
-                    {{ savings_count }} Total Accounts
-                {% endwith %}
-            </div>
-        </div>
-
-         <div class="stat-card accounts">
-            <div class="stat-header">
-                <div class="stat-icon">💼</div>
-                <div class="stat-title">Security Status</div>
-            </div>
-            <div class="stat-value">
-               {{ user.otp_device|ternary:"Enabled,Not Enabled" }}
-            </div>
-                {% if not user.otp_device %}
-          <div class="alert alert-warning stat-subtitle" role="alert">
-            <h5>🔒 Enhance Your Security</h5>
-            <p>Two-factor authentication is not enabled on your account.</p>
-            <a
-              href="{% url 'two_factor:setup' %}"
-              class="btn btn-primary btn-sm"
-            >
-              Enable 2FA Now
-            </a>
-          </div>
-          {% else %}
-          <div class="alert alert-success">
-            <h5>✅ Excellent Security</h5>
-            <p>Two-factor authentication is protecting your account.</p>
-            <a
-              href="{% url 'two_factor:profile' %}"
-              class="btn btn-outline-success btn-sm"
-            >
-              Manage 2FA Settings
-            </a>
-          </div>
-          {% endif %}
-        </div>
-
-        <div class="stat-card amount">
-            <div class="stat-header">
-                <div class="stat-icon">💰</div>
-                <div class="stat-title">Total Balance</div>
-            </div>
-            <div class="stat-value">₦{{ total_balance|floatformat:2 }}</div>
-            <div class="stat-subtitle">Across all accounts</div>
-        </div>
+    <div class="stat-card joined">
+      <div class="stat-header">
+        <div class="stat-icon">🗓️</div>
+        <div class="stat-title">Member Since</div>
+      </div>
+      <div class="stat-value">{{ user.date_joined|date:"M j, Y" }}</div>
+      <div class="stat-subtitle">Active member</div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <h3>Quick Actions</h3>
-        <div class="quick-action-grid">
-            <a href="{% url 'transaction' %}" class="quick-action">
-                <div class="quick-action-icon">💸</div>
-                <div class="quick-action-label">Incomes</div>
-            </a>
-            <a href="{% url 'transaction' %}" class="quick-action">
-                <div class="quick-action-icon">🧾</div>
-                <div class="quick-action-label">Expenses</div>
-            </a>
-            <a href="{% url 'export_csv' %}" class="quick-action">
-                <div class="quick-action-icon">📋</div>
-                <div class="quick-action-label">Statements</div>
-            </a>
-            <a href="{% url 'faq' %}" class="quick-action" onclick="contactSupport()">
-                <div class="quick-action-icon">💬</div>
-                <div class="quick-action-label">Support</div>
-            </a>
-            <a href="{% url 'account_dashboard' %}" class="quick-action">
-                <div class="quick-action-icon">💳</div>
-                <div class="quick-action-label">Cards</div>
-            </a>
-            <a href="{% url 'edit_profile' %}" class="quick-action">
-                <div class="quick-action-icon">⚙️</div>
-                <div class="quick-action-label">Settings</div>
-            </a>
-        </div>
+    <div class="stat-card accounts">
+      <div class="stat-header">
+        <div class="stat-icon">💼</div>
+        <div class="stat-title">Active Accounts</div>
+      </div>
+      <div class="stat-value">{{ accounts|length }} Accounts</div>
+      <div class="stat-subtitle">
+        {% with savings_count=accounts|length %} {{ savings_count }} Total
+        Accounts {% endwith %}
+      </div>
     </div>
 
-    <!-- Actions Section -->
-    <div class="actions-section">
-        <h3 class="actions-title">Account Management</h3>
-        <div class="action-buttons">
-            <a class="profile-btn profile-btn-outline" href="{% url 'edit_profile' %}">
-                ✏️ Edit Profile
-            </a>
-
-            <a class="profile-btn profile-btn-outline" href="{% url 'transaction' %}">
-                📊 View Transactions
-            </a>
-
-            <form method="post" action="{% url 'delete_user_account' %}" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" class="profile-btn profile-btn-danger" onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">
-                    🗑️ Delete Account
-                </button>
-            </form>
-        </div>
+    <div class="stat-card accounts">
+      <div class="stat-header">
+        <div class="stat-icon">💼</div>
+        <div class="stat-title">Security Status</div>
+      </div>
+      <div class="stat-value">
+        {% if user.otp_device %} Enabled {% else %} Not Enabled {% endif %}
+      </div>
+      {% if not user.otp_device %}
+      <div class="alert alert-warning stat-subtitle" role="alert">
+        <h5>🔒 Enhance Your Security</h5>
+        <p>Two-factor authentication is not enabled on your account.</p>
+        <a href="{% url 'two_factor:setup' %}" class="btn btn-primary btn-sm">
+          Enable 2FA Now
+        </a>
+      </div>
+      {% else %}
+      <div class="alert alert-success">
+        <h5>✅ Excellent Security</h5>
+        <p>Two-factor authentication is protecting your account.</p>
+        <a
+          href="{% url 'two_factor:profile' %}"
+          class="btn btn-outline-success btn-sm"
+        >
+          Manage 2FA Settings
+        </a>
+      </div>
+      {% endif %}
     </div>
+
+    <div class="stat-card amount">
+      <div class="stat-header">
+        <div class="stat-icon">💰</div>
+        <div class="stat-title">Total Balance</div>
+      </div>
+      <div class="stat-value">₦{{ total_balance|floatformat:2 }}</div>
+      <div class="stat-subtitle">Across all accounts</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h3>Quick Actions</h3>
+    <div class="quick-action-grid">
+      <a href="{% url 'transaction' %}" class="quick-action">
+        <div class="quick-action-icon">💸</div>
+        <div class="quick-action-label">Incomes</div>
+      </a>
+      <a href="{% url 'transaction' %}" class="quick-action">
+        <div class="quick-action-icon">🧾</div>
+        <div class="quick-action-label">Expenses</div>
+      </a>
+      <a href="{% url 'export_csv' %}" class="quick-action">
+        <div class="quick-action-icon">📋</div>
+        <div class="quick-action-label">Statements</div>
+      </a>
+      <a href="{% url 'faq' %}" class="quick-action" onclick="contactSupport()">
+        <div class="quick-action-icon">💬</div>
+        <div class="quick-action-label">Support</div>
+      </a>
+      <a href="{% url 'account_dashboard' %}" class="quick-action">
+        <div class="quick-action-icon">💳</div>
+        <div class="quick-action-label">Cards</div>
+      </a>
+      <a href="{% url 'edit_profile' %}" class="quick-action">
+        <div class="quick-action-icon">⚙️</div>
+        <div class="quick-action-label">Settings</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Actions Section -->
+  <div class="actions-section">
+    <h3 class="actions-title">Account Management</h3>
+    <div class="action-buttons">
+      <a
+        class="profile-btn profile-btn-outline"
+        href="{% url 'edit_profile' %}"
+      >
+        ✏️ Edit Profile
+      </a>
+
+      <a class="profile-btn profile-btn-outline" href="{% url 'transaction' %}">
+        📊 View Transactions
+      </a>
+
+      <form
+        method="post"
+        action="{% url 'delete_user_account' %}"
+        style="display: inline"
+      >
+        {% csrf_token %}
+        <button
+          type="submit"
+          class="profile-btn profile-btn-danger"
+          onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')"
+        >
+          🗑️ Delete Account
+        </button>
+      </form>
+    </div>
+  </div>
 </div>
 
- <script>
-    // Interactive functions
-    function changeAvatar() {
-        const colors = [
-            'linear-gradient(135deg, #667eea, #764ba2)',
-            'linear-gradient(135deg, #ff6b6b, #ee5a24)',
-            'linear-gradient(135deg, #4ecdc4, #44a08d)',
-            'linear-gradient(135deg, #45b7d1, #2980b9)',
-            'linear-gradient(135deg, #96ceb4, #27ae60)',
-            'linear-gradient(135deg, #feca57, #ff9ff3)'
-        ];
-        const avatar = document.querySelector('.avatar');
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        avatar.style.background = randomColor;
-        
-        // Show actual avatar change modal in production
-        // alert('🖼️ Avatar Change\n\nIn production, this would open a file picker to upload a new profile picture.');
-    }
+<script>
+  // Interactive functions
+  function changeAvatar() {
+    const colors = [
+      "linear-gradient(135deg, #667eea, #764ba2)",
+      "linear-gradient(135deg, #ff6b6b, #ee5a24)",
+      "linear-gradient(135deg, #4ecdc4, #44a08d)",
+      "linear-gradient(135deg, #45b7d1, #2980b9)",
+      "linear-gradient(135deg, #96ceb4, #27ae60)",
+      "linear-gradient(135deg, #feca57, #ff9ff3)",
+    ];
+    const avatar = document.querySelector(".avatar");
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    avatar.style.background = randomColor;
 
-    function editEmail() {
-        alert('📧 Email Settings\n\nThis would allow you to:\n• Update email address\n• Verify new email\n• Manage email notifications\n• Set backup email');
-    }
+    // Show actual avatar change modal in production
+    // alert('🖼️ Avatar Change\n\nIn production, this would open a file picker to upload a new profile picture.');
+  }
 
-    function contactSupport() {
-        alert('💬 Customer Support\n\nGet help with:\n• Live chat\n• Phone support\n• Email tickets\n• FAQ section');
-    }
+  function editEmail() {
+    alert(
+      "📧 Email Settings\n\nThis would allow you to:\n• Update email address\n• Verify new email\n• Manage email notifications\n• Set backup email"
+    );
+  }
 
-    // Add smooth scroll behavior and enhanced interactions
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add entrance animations
-        const cards = document.querySelectorAll('.stat-card');
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
-            setTimeout(() => {
-                card.style.transition = 'all 0.6s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100 + 300);
-        });
+  function contactSupport() {
+    alert(
+      "💬 Customer Support\n\nGet help with:\n• Live chat\n• Phone support\n• Email tickets\n• FAQ section"
+    );
+  }
 
-        // Add ripple effect to buttons
-        const buttons = document.querySelectorAll('.profile-btn');
-        buttons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                const ripple = document.createElement('span');
-                const rect = this.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                const x = e.clientX - rect.left - size / 2;
-                const y = e.clientY - rect.top - size / 2;
-                
-                ripple.style.cssText = `
+  // Add smooth scroll behavior and enhanced interactions
+  document.addEventListener("DOMContentLoaded", function () {
+    // Add entrance animations
+    const cards = document.querySelectorAll(".stat-card");
+    cards.forEach((card, index) => {
+      card.style.opacity = "0";
+      card.style.transform = "translateY(30px)";
+      setTimeout(() => {
+        card.style.transition = "all 0.6s ease";
+        card.style.opacity = "1";
+        card.style.transform = "translateY(0)";
+      }, index * 100 + 300);
+    });
+
+    // Add ripple effect to buttons
+    const buttons = document.querySelectorAll(".profile-btn");
+    buttons.forEach((button) => {
+      button.addEventListener("click", function (e) {
+        const ripple = document.createElement("span");
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+
+        ripple.style.cssText = `
                     position: absolute;
                     border-radius: 50%;
                     background: rgba(255, 255, 255, 0.4);
@@ -636,19 +684,19 @@
                     height: ${size}px;
                     pointer-events: none;
                 `;
-                
-                this.appendChild(ripple);
-                setTimeout(() => {
-                    if (ripple.parentNode === this) {
-                        this.removeChild(ripple);
-                    }
-                }, 600);
-            });
-        });
-        
-        // Add CSS for ripple animation
-        const style = document.createElement('style');
-        style.textContent = `
+
+        this.appendChild(ripple);
+        setTimeout(() => {
+          if (ripple.parentNode === this) {
+            this.removeChild(ripple);
+          }
+        }, 600);
+      });
+    });
+
+    // Add CSS for ripple animation
+    const style = document.createElement("style");
+    style.textContent = `
             @keyframes ripple {
                 to {
                     transform: scale(4);
@@ -656,7 +704,7 @@
                 }
             }
         `;
-        document.head.appendChild(style);
-    });
- </script>
+    document.head.appendChild(style);
+  });
+</script>
 {% endblock %}
