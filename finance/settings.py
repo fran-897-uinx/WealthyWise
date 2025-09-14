@@ -119,7 +119,7 @@ TEMPLATES = [
 ]
 
 
-SITE_NAME = "WealthyWise.com"
+SITE_NAME = "WealthyWise"
 DOMAIN = "wealthywise.com"
 
 

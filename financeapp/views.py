@@ -216,7 +216,7 @@ def landing(request):
         "total_budget": total_budget,
         "spent_budget": spent_budget,
     }
-    return render(request, "dashboard.html", context)
+    return render(request, "base.html", context)
 
 
 # ----------------- Authentication Views -----------------
