@@ -12,7 +12,7 @@
       box-sizing: border-box;
     }
 
-    body {
+    /* body {
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
       sans-serif;
       background: var(--bg);
@@ -20,7 +20,7 @@
       line-height: 1.6;
       overflow-x: hidden;
       transition: var(--transition);
-    }
+    } */
 
     .container-fluid {
       padding: 0.3rem;
@@ -932,6 +932,26 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeChart();
 
   // --- TRANSACTION FORM HANDLING ---
+
+  function initializeTransactionForm() {
+    console.log("Transaction form initialized");
+
+    const form = document.getElementById("transactionForm");
+    if (form) {
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            console.log("Form submitted!");
+            // your form submission logic...
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("DOM loaded - initializing transaction functionality");
+    initializeTransactionForm();
+});
+
+
   if (form) {
     initializeTransactionForm(form, ADD_TRANSACTION_URL);
   }

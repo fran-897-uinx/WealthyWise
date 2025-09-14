@@ -1,247 +1,446 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="{{ user_theme|default:'dark' }}">
-<head>
-    {% load static %}
-    {% load bootstrap5 %}
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
-    
+  <head>
+    {% load static %} {% load bootstrap5 %} {% bootstrap_css %} {%
+    bootstrap_javascript %}
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="WealthyWise - Manage your expenses, transactions, and reports easily." />
+    <meta
+      name="description"
+      content="WealthyWise - Manage your expenses, transactions, and reports easily."
+    />
     <meta name="author" content="CodeSmith" />
     <meta property="og:title" content="WealthyWise" />
-    <meta property="og:description" content="Track and analyze your finances with ease." />
+    <meta
+      property="og:description"
+      content="Track and analyze your finances with ease."
+    />
     <meta property="og:type" content="website" />
     <meta name="theme-color" content="#0a0a0f" />
 
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <!-- Page Title -->
     <title>
-        {% block title %}{% firstof app_settings.site_name "WealthyWise" %}{% endblock %}
+      {% block title %}{% firstof app_settings.site_name "WealthyWise" %}{%
+      endblock %}
     </title>
 
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
       :root {
-        --bg: #0b0f14; --panel: #111821; --muted: #92a2b3; --text: #e8eef6;
-        --accent: #4aa8ff; --accent-2: #7c5cff; --danger: #ff6b6b;
-        --success: #3ddc97; --warning: #fbbf24; --info: #38bdf8; --card: #0f141b;
-        --border: #1a2330; --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-        --radius: 16px; --radius-sm: 12px; --gap: 16px; --gap-lg: 22px;
-        --nav-width: 280px; --nav-collapsed: 70px; --header-height: 70px;
+        --bg: #0b0f14;
+        --panel: #111821;
+        --muted: #92a2b3;
+        --text: #e8eef6;
+        --accent: #4aa8ff;
+        --accent-2: #7c5cff;
+        --danger: #ff6b6b;
+        --success: #3ddc97;
+        --warning: #fbbf24;
+        --info: #38bdf8;
+        --card: #0f141b;
+        --border: #1a2330;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        --radius: 16px;
+        --radius-sm: 12px;
+        --gap: 16px;
+        --gap-lg: 22px;
+        --nav-width: 280px;
+        --nav-collapsed: 70px;
+        --header-height: 70px;
         --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        --z-sidebar: 1000; --z-header: 900; --z-modal: 2000;
-        --z-notification: 2100; --z-tooltip: 2200;
+        --z-sidebar: 1000;
+        --z-header: 900;
+        --z-modal: 2000;
+        --z-notification: 2100;
+        --z-tooltip: 2200;
       }
       [data-theme="light"] {
-        --bg: #f5f7fa; --panel: #ffffff; --muted: #6b7280; --text: #1f2937;
-        --accent: #3b82f6; --accent-2: #8b5cf6; --danger: #ef4444;
-        --success: #10b981; --warning: #f59e0b; --info: #0ea5e9;
-        --card: #ffffff; --border: #e5e7eb;
+        --bg: #f5f7fa;
+        --panel: #ffffff;
+        --muted: #6b7280;
+        --text: #1f2937;
+        --accent: #3b82f6;
+        --accent-2: #8b5cf6;
+        --danger: #ef4444;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --info: #0ea5e9;
+        --card: #ffffff;
+        --border: #e5e7eb;
         --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
       }
       body {
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: var(--bg); color: var(--text); line-height: 1.6;
-        overflow-x: hidden; transition: var(--transition);
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        overflow-x: hidden;
+        transition: var(--transition);
       }
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: var(--panel); }
-      ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
-      .app-container { display: flex; min-height: 100vh; }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--panel);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 4px;
+      }
+      .app-container {
+        display: flex;
+        min-height: 100vh;
+      }
       .sidebar {
-        width: var(--nav-width); background: var(--panel); border-right: 1px solid var(--border);
-        box-shadow: var(--shadow); position: fixed; height: 100vh; z-index: var(--z-sidebar);
-        transition: var(--transition); display: flex; flex-direction: column; overflow: hidden;
+        width: var(--nav-width);
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        position: fixed;
+        height: 100%;
+        z-index: var(--z-sidebar);
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
-      .sidebar.collapsed { width: var(--nav-collapsed); }
+      .sidebar.collapsed {
+        width: var(--nav-collapsed);
+      }
       .sidebar-header {
-        padding: 1rem; border-bottom: 1px solid var(--border);
-        display: flex; align-items: center; justify-content: center; gap: 1rem; min-height: 80px;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        min-height: 80px;
       }
-      .brand { color: var(--accent); font-size: 1.5rem; font-weight: 700; white-space: nowrap; transition: var(--transition); }
-      .sidebar.collapsed .brand { opacity: 0; width: 0; }
+      .brand {
+        color: var(--accent);
+        font-size: 1.5rem;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: var(--transition);
+      }
+      .sidebar.collapsed .brand {
+        opacity: 0;
+        width: 0;
+      }
       .toggle-btn {
-        background: var(--card); border: 1px solid var(--border); color: var(--text);
-        padding: 0.5rem; border-radius: 8px; cursor: pointer; transition: var(--transition);
-        width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+        background: var(--card);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 0.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
-      .sidebar-nav { flex: 1; padding: 0.4rem 0; overflow-y: auto; }
-      .nav-item { margin: 0.25rem 1rem; position: relative; }
+      .sidebar-nav {
+        flex: 1;
+        padding: 0.4rem 0;
+        overflow-y: auto;
+      }
+      .nav-item {
+        margin: 0.25rem 1rem;
+        position: relative;
+      }
       .nav-link {
-        display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem;
-        color: var(--muted); text-decoration: none; border-radius: var(--radius-sm);
-        transition: var(--transition); font-weight: 500; position: relative; cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        color: var(--muted);
+        text-decoration: none;
+        border-radius: var(--radius-sm);
+        transition: var(--transition);
+        font-weight: 500;
+        position: relative;
+        cursor: pointer;
       }
       .nav-link::before {
-        content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 0;
-        background: var(--accent); transition: var(--transition); opacity: 0.1;
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: var(--accent);
+        transition: var(--transition);
+        opacity: 0.1;
       }
-      .nav-link:hover, .nav-link.active {
-        color: var(--text); background: rgba(74, 168, 255, 0.1); transform: translateX(4px);
+      .nav-link:hover,
+      .nav-link.active {
+        color: var(--text);
+        background: rgba(74, 168, 255, 0.1);
+        transform: translateX(4px);
       }
-      .nav-link:hover::before, .nav-link.active::before { width: 3px; }
-      .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
-      .nav-text { transition: var(--transition); white-space: nowrap; text-transform: capitalize; }
-      .sidebar.collapsed .nav-text { opacity: 0; display: none; }
-      .sidebar.collapsed .nav-link { justify-content: center; padding: 0.75rem; margin: 0.25rem 0.5rem; }
-      .sidebar-footer { padding: 1rem; border-top: 1px solid var(--border); margin-top: auto; }
+      .nav-link:hover::before,
+      .nav-link.active::before {
+        width: 3px;
+      }
+      .nav-icon {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .nav-text {
+        transition: var(--transition);
+        white-space: nowrap;
+        text-transform: capitalize;
+      }
+      .sidebar.collapsed .nav-text {
+        opacity: 0;
+        display: none;
+      }
+      .sidebar.collapsed .nav-link {
+        justify-content: center;
+        padding: 0.75rem;
+        margin: 0.25rem 0.5rem;
+      }
+      .sidebar-footer {
+        padding: 1rem;
+        border-top: 1px solid var(--border);
+        margin-top: auto;
+      }
       .logout-btn {
-        width: 100%; background: linear-gradient(135deg, var(--danger), #c53030);
-        border: none; color: white; padding: 0.75rem; border-radius: var(--radius-sm);
-        cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: var(--transition);
-        display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;
+        width: 100%;
+        background: linear-gradient(135deg, var(--danger), #c53030);
+        border: none;
+        color: white;
+        padding: 0.75rem;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
       }
-      .logout-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3); }
+      .logout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+      }
       .main-content {
-        flex: 1; margin-left: var(--nav-width); transition: var(--transition);
-        min-height: 100vh; display: flex; flex-direction: column;
+        flex: 1;
+        margin-left: var(--nav-width);
+        transition: var(--transition);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
-      .main-content.expanded { margin-left: var(--nav-collapsed); }
-      .page-content { flex: 1; padding: 2rem; background: var(--bg); }
+      .main-content.expanded {
+        margin-left: var(--nav-collapsed);
+      }
+      .page-content {
+        flex: 1;
+        padding: 2rem;
+        background: var(--bg);
+      }
       @media (max-width: 768px) {
-        .sidebar { transform: translateX(-100%); width: 90%; }
-        .sidebar.open { transform: translateX(0); }
-        .main-content, .main-content.expanded { margin-left: 0; }
-        .mobile-overlay {
-          position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
-          backdrop-filter: blur(4px); z-index: 999; opacity: 0; visibility: hidden; transition: var(--transition);
+        .sidebar {
+          transform: translateX(-100%);
+          width: 90%;
         }
-        .mobile-overlay.show { opacity: 1; visibility: visible; }
+        .sidebar.open {
+          transform: translateX(0);
+        }
+        .main-content,
+        .main-content.expanded {
+          margin-left: 0;
+        }
+        .mobile-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(4px);
+          z-index: 999;
+          opacity: 0;
+          visibility: hidden;
+          transition: var(--transition);
+        }
+        .mobile-overlay.show {
+          opacity: 1;
+          visibility: visible;
+        }
         .mobile-toggle {
-          display: flex; position: fixed; top: 20px; left: 20px; z-index: 1002;
-          background: var(--panel); border: 1px solid var(--border); color: var(--text);
-          padding: 0.75rem; border-radius: 8px; cursor: pointer; box-shadow: var(--shadow);
+          display: flex;
+          position: fixed;
+          top: 20px;
+          left: 20px;
+          z-index: 1002;
+          background: var(--panel);
+          border: 1px solid var(--border);
+          color: var(--text);
+          padding: 0.75rem;
+          border-radius: 8px;
+          cursor: pointer;
+          box-shadow: var(--shadow);
         }
       }
-      @media (min-width: 769px) { .mobile-toggle { display: none; } }
+      @media (min-width: 769px) {
+        .mobile-toggle {
+          display: none;
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="app-container">
-        <!-- Mobile Toggle Button -->
-        <p class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-            <i class="fas fa-bars"></i>
-        </p>
+      <!-- Mobile Toggle Button -->
+      <p
+        class="mobile-toggle"
+        id="mobileToggle"
+        onclick="toggleSidebar()"
+        aria-label="Toggle sidebar"
+      >
+        <i class="fas fa-bars"></i>
+      </p>
 
-        <!-- Mobile Overlay -->
-        <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
+      <!-- Mobile Overlay -->
+      <div
+        class="mobile-overlay"
+        id="mobileOverlay"
+        onclick="toggleSidebar()"
+      ></div>
 
-        <!-- Sidebar Navigation -->
-        <nav class="sidebar" id="sidebar" role="navigation">
-            <div class="sidebar-header">
-                <div class="brand">
-                    {{ SITE_NAME }}.
-                </div>
-            </div>
+      <!-- Sidebar Navigation -->
+      <nav class="sidebar" id="sidebar" role="navigation">
+        <div class="sidebar-header">
+          <div class="brand">{{ SITE_NAME }}.</div>
+        </div>
 
-            <div class="sidebar-nav">
-                <div class="nav-item">
-                    <a href="{% url 'landing' %}" class="nav-link">
-                        <div class="nav-icon"><i class="fas fa-home"></i></div>
-                        <span class="nav-text">Dashboard</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{% url 'account_dashboard' %}" class="nav-link">
-                        <div class="nav-icon"><i class="fas fa-credit-card"></i></div>
-                        <span class="nav-text">Accounts</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{% url 'transaction' %}" class="nav-link">
-                        <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
-                        <span class="nav-text">Transactions</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{% url 'budget_manager' %}" class="nav-link">
-                        <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
-                        <span class="nav-text">Budgets</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{% url 'profile' %}" class="nav-link">
-                        <div class="nav-icon"><i class="fas fa-user"></i></div>
-                        <span class="nav-text">Profile</span>
-                    </a>
-                </div>
-                <!-- <div class="nav-item">
+        <div class="sidebar-nav">
+          <div class="nav-item">
+            <a href="{% url 'landing' %}" class="nav-link">
+              <div class="nav-icon"><i class="fas fa-home"></i></div>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="{% url 'account_dashboard' %}" class="nav-link">
+              <div class="nav-icon"><i class="fas fa-credit-card"></i></div>
+              <span class="nav-text">Accounts</span>
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="{% url 'transaction' %}" class="nav-link">
+              <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
+              <span class="nav-text">Transactions</span>
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="{% url 'budget_manager' %}" class="nav-link">
+              <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
+              <span class="nav-text">Budgets</span>
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="{% url 'profile' %}" class="nav-link">
+              <div class="nav-icon"><i class="fas fa-user"></i></div>
+              <span class="nav-text">Profile</span>
+            </a>
+          </div>
+          <!-- <div class="nav-item">
                     <a href="{% url 'save_setting' %}" class="nav-link">
                         <div class="nav-icon"><i class="fas fa-cog"></i></div>
                         <span class="nav-text">Settings</span>
                     </a>
                 </div> -->
-                <div class="nav-item">
-                    <a href="{% url 'faq' %}" class="nav-link">
-                        <div class="nav-icon"><i class="fas fa-question-circle"></i></div>
-                        <span class="nav-text">FAQ</span>
-                    </a>
-                </div>
-            </div>
+          <div class="nav-item">
+            <a href="{% url 'faq' %}" class="nav-link">
+              <div class="nav-icon"><i class="fas fa-question-circle"></i></div>
+              <span class="nav-text">FAQ</span>
+            </a>
+          </div>
+        </div>
 
-            <!-- Footer -->
-            <div class="sidebar-footer">
-                <a href="{% url 'logout' %}" class="logout-btn" onclick="return confirm('Are you sure you want to log out?')">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span class="logout-text">Logout</span>
-                </a>
-            </div>
-        </nav>
+        <!-- Footer -->
+        <div class="sidebar-footer">
+          <a
+            href="{% url 'logout' %}"
+            class="logout-btn"
+            onclick="return confirm('Are you sure you want to log out?')"
+          >
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="logout-text">Logout</span>
+          </a>
+        </div>
+      </nav>
 
-        <!-- Main Content Area -->
-        <main class="main-content" id="mainContent">
-           
-
-            {% block content %}
-            <!-- Your page content will be injected here -->
-            {% endblock %}
-             <header class="content-header">
-                <!-- Theme toggle button -->
-                <button id="themeToggle" class="toggle-btn" aria-label="Toggle theme">
-                    <i class="fas fa-adjust"></i>
-                </button>
-            </header>
-            
-        </main>
+      <!-- Main Content Area -->
+      <main class="main-content" id="mainContent">
+        {% block content %}
+        <!-- Your page content will be injected here -->
+        {% endblock %}
+        <header class="content-header">
+          <!-- Theme toggle button -->
+          <button id="themeToggle" class="toggle-btn" aria-label="Toggle theme">
+            <i class="fas fa-adjust"></i>
+          </button>
+        </header>
+      </main>
     </div>
 
-    <!-- JavaScript for Sidebar Toggle and Theme System --> 
+    <!-- JavaScript for Sidebar Toggle and Theme System -->
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById("sidebar");
-            const overlay = document.getElementById("mobileOverlay");
-            if (sidebar && overlay) {
-                sidebar.classList.toggle("open");
-                overlay.classList.toggle("show");
-            }
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("mobileOverlay");
+        if (sidebar && overlay) {
+          sidebar.classList.toggle("open");
+          overlay.classList.toggle("show");
         }
+      }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedTheme = localStorage.getItem("theme") || "dark";
-            document.documentElement.setAttribute("data-theme", savedTheme);
+      document.addEventListener("DOMContentLoaded", () => {
+        const savedTheme = localStorage.getItem("theme") || "dark";
+        document.documentElement.setAttribute("data-theme", savedTheme);
 
-            const themeToggle = document.getElementById("themeToggle");
-            if (themeToggle) {
-                themeToggle.addEventListener("click", () => {
-                    const currentTheme = document.documentElement.getAttribute("data-theme");
-                    const newTheme = currentTheme === "dark" ? "light" : "dark";
-                    document.documentElement.setAttribute("data-theme", newTheme);
-                    localStorage.setItem("theme", newTheme);
-                });
-            }
-        });
+        const themeToggle = document.getElementById("themeToggle");
+        if (themeToggle) {
+          themeToggle.addEventListener("click", () => {
+            const currentTheme =
+              document.documentElement.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+          });
+        }
+      });
 
-        window.addEventListener("error", (e) => {
-            console.log("Error caught:", e.error);
-            return true;
-        });
+      window.addEventListener("error", (e) => {
+        console.log("Error caught:", e.error);
+        return true;
+      });
     </script>
-</body>
+  </body>
 </html>
