@@ -317,8 +317,12 @@
       border: none;
       border-radius: 12px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
+      overflow: scroll;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-color) transparent;
       background: #0a0a0f;
+      place-self: center;
+
     }
 
     .modal-header {
@@ -420,10 +424,18 @@
       border-color: var(--success-color);
       background: rgba(16, 185, 129, 0.1);
     }
+    .type-card.income.active:active {
+      border-color: var(--success-color);
+      background: rgba(5, 150, 105, 0.945);
+    }
 
     .type-card.expense.active {
       border-color: var(--danger-color);
       background: rgba(239, 68, 68, 0.1);
+    }
+    .type-card.expense.active:active {
+      border-color: var(--danger-color);
+      background: rgba(233, 49, 49, 0.945);
     }
 
     .type-card i {
@@ -438,7 +450,6 @@
     .type-card.expense i {
       color: var(--danger-color);
     }
-
     .type-card h6 {
       margin: 0;
       font-weight: 600;
@@ -851,6 +862,11 @@
                     <option value="{{ account.id }}">{{ account.name }}</option>
                     {% endfor %}
                   </select>
+                                                      <div class="account-balance-info" id="balanceInfo">
+                                        <div class="balance-indicator">
+                                            Current Balance: ₦<span id="currentBalance">0</span>
+                                        </div>
+                                    </div>
                 </div>
               </div>
 
@@ -896,7 +912,7 @@
 
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Transaction</button>
+            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save Transaction</button>
           </div>
         </form>
       </div>
@@ -908,6 +924,68 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://kit.fontawesome.com/35c4d7b2c1.js" crossorigin="anonymous"></script>
 <script>
+// --- RIPPLE EFFECT ---
+function initializeRippleEffects() 
+{
+  document.querySelectorAll(".btn").forEach((button) => {
+    button.addEventListener("click", function (e) {
+      const circle = document.createElement("span");
+      const diameter = Math.max(button.clientWidth, button.clientHeight);
+      const radius = diameter / 2;
+
+      circle.style.width = circle.style.height = `${diameter}px`;
+      circle.style.left = `${e.clientX - button.getBoundingClientRect().left - radius}px`;
+      circle.style.top = `${e.clientY - button.getBoundingClientRect().top - radius}px`;
+      circle.classList.add("ripple");
+
+      const ripple = button.getElementsByClassName("ripple")[0];
+
+      if (ripple) {
+        ripple.remove();
+      }
+
+      button.appendChild(circle);
+    });
+  });
+}
+
+// --- SET DEFAULT DATE ---
+function setDefaultDate() {
+  const dateInput = document.getElementById("transactionDate");
+  if (dateInput) {
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.value = today;
+  }
+}
+
+// --- ACCOUNT SELECT BALANCE DISPLAY ---
+function initializeAccountBalanceDisplay() {
+  const accountSelect = document.getElementById('account');
+  const balanceInfo = document.getElementById('balanceInfo');
+  const currentBalanceSpan = document.getElementById('currentBalance');
+
+        accountSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const balance = selectedOption.dataset.balance;
+            
+            if (balance) {
+                currentBalanceSpan.textContent = parseInt(balance).toLocaleString();
+                balanceInfo.classList.add('show');
+            } else {
+                balanceInfo.classList.remove('show');
+            }
+        });
+
+const addTransactionModal = document.getElementById("addTransactionModal");
+
+addTransactionModal.addEventListener("hidden.bs.modal", function () {
+    document.activeElement?.blur();
+});
+}
+initializeAccountBalanceDisplay();
+
+
+
   // Wait for DOM to be fully loaded
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM loaded - initializing transaction functionality");

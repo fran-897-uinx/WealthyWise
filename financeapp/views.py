@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from decimal import Decimal
 from dateutil.relativedelta import relativedelta
-
+from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -21,8 +21,7 @@ from django.conf import settings
 from django.core.mail import send_mail, BadHeaderError
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from django.db.models.functions import ExtractMonth, ExtractYear
-
+from django.db.models.functions import ExtractWeek, ExtractMonth, ExtractYear
 from django.core.cache import cache
 from django_otp import user_has_device
 
@@ -98,82 +97,77 @@ def get_monthly_spending_pattern(user):
 
     return list(monthly_data[:6])
 
-
 def get_chart_data(user, period):
-    """Get chart data for the specified period"""
+    """Get chart data for the specified period (week, month, year)"""
     today = timezone.now().date()
 
     if period == "week":
-        # Last 7 days
+        # Labels: last 7 days
         labels = [(today - timedelta(days=i)).strftime("%a") for i in range(6, -1, -1)]
-
-        # Get daily data for the week
-        income_data = []
-        expense_data = []
+        income_data, expense_data = [], []
 
         for i in range(7):
             day = today - timedelta(days=6 - i)
-            day_income = Transaction.objects.filter(
+            income = Transaction.objects.filter(
                 user=user, transaction_type="income", date=day
             ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
-
-            day_expense = Transaction.objects.filter(
+            expense = Transaction.objects.filter(
                 user=user, transaction_type="expense", date=day
             ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
-
-            income_data.append(float(day_income))
-            expense_data.append(float(day_expense))
+            income_data.append(float(income))
+            expense_data.append(float(expense))
 
     elif period == "month":
-        # Last 4 weeks
+        # Labels: last 4 weeks
         labels = [f"Week {i+1}" for i in range(4)]
+        income_data, expense_data = [], []
 
-        # For demo purposes - in production, you'd aggregate actual weekly data
-        income_data = [45000, 52000, 48000, 55000]
-        expense_data = [35000, 38000, 42000, 37000]
+        for i in range(4):
+            start_of_week = today - timedelta(days=(3 - i) * 7)
+            end_of_week = start_of_week + timedelta(days=6)
+
+            income = Transaction.objects.filter(
+                user=user,
+                transaction_type="income",
+                date__range=[start_of_week, end_of_week],
+            ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+            expense = Transaction.objects.filter(
+                user=user,
+                transaction_type="expense",
+                date__range=[start_of_week, end_of_week],
+            ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+            income_data.append(float(income))
+            expense_data.append(float(expense))
 
     elif period == "year":
-        # Last 12 months
+        # Labels: last 12 months
         labels = [
             (today.replace(day=1) - timedelta(days=30 * i)).strftime("%b")
             for i in range(11, -1, -1)
         ]
+        income_data, expense_data = [], []
 
-        # For demo purposes - in production, you'd aggregate actual monthly data
-        income_data = [
-            65000,
-            59000,
-            80000,
-            81000,
-            56000,
-            55000,
-            40000,
-            75000,
-            82000,
-            78000,
-            90000,
-            95000,
-        ]
-        expense_data = [
-            48000,
-            45000,
-            52000,
-            58000,
-            51000,
-            47000,
-            42000,
-            53000,
-            58000,
-            60000,
-            62000,
-            65000,
-        ]
+        for i in range(12):
+            start_of_month = today.replace(day=1) - timedelta(days=30 * (11 - i))
+            end_of_month = start_of_month + timedelta(days=30)
+
+            income = Transaction.objects.filter(
+                user=user,
+                transaction_type="income",
+                date__range=[start_of_month, end_of_month],
+            ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+            expense = Transaction.objects.filter(
+                user=user,
+                transaction_type="expense",
+                date__range=[start_of_month, end_of_month],
+            ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+            income_data.append(float(income))
+            expense_data.append(float(expense))
 
     else:
         return {"labels": [], "income": [], "expenses": []}
 
     return {"labels": labels, "income": income_data, "expenses": expense_data}
-
 
 # expenditure rate -----------------
 
@@ -198,14 +192,29 @@ def rate_expenditure(total_income, total_expenses):
 @login_required
 def landing(request):
     """Main dashboard view with comprehensive financial analysis"""
-    transactions = Transaction.objects.filter(user=request.user).order_by("-date")[:5]
-    accounts = Account.objects.filter(user=request.user)
-    budgets = Budget.objects.filter(user=request.user)
+    user = request.user
+    transactions = Transaction.objects.filter(user=user).order_by("-date")[:5]
+    accounts = Account.objects.filter(user=user)
+    budgets = Budget.objects.filter(user=user)
 
     total_balance = sum(acc.balance for acc in accounts)
     total_budget = sum(b.amount for b in budgets)
     spent_budget = sum(
         t.amount for t in transactions if t.transaction_type == "expense"
+    )
+
+    chart_data = {
+        "week": get_chart_data(user, "week"),
+        "month": get_chart_data(user, "month"),
+        "year": get_chart_data(user, "year"),
+    }
+
+    # Top categories (example: top 5 expense categories)
+    top_categories = (
+        Transaction.objects.filter(user=user, transaction_type="expense")
+        .values("category__name")
+        .annotate(total=Sum("amount"))
+        .order_by("-total")[:5]
     )
 
     context = {
@@ -215,6 +224,10 @@ def landing(request):
         "total_balance": total_balance,
         "total_budget": total_budget,
         "spent_budget": spent_budget,
+        "chart_data": mark_safe(json.dumps(chart_data)),
+        "top_category_json": mark_safe(
+            json.dumps(list(top_categories))
+        ),  # Convert QuerySet to list
     }
     return render(request, "base.html", context)
 
@@ -408,7 +421,7 @@ def transaction(request):
 
     # ---- CHART DATA (Weekly Income vs Expenses) ----
     week_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-
+    chart_data_week = get_chart_data(request.user, "week")
     # Query weekly income/expenses using day-of-week (1=Sunday in Django by default for some locales).
     income_by_day = [
         float(
@@ -470,6 +483,7 @@ def transaction(request):
         "budget_usage": budget_usage,
         "transaction_categories": transaction_categories,
         "chart_data": json.dumps(chart_data),
+        "chart_data_week": json.dumps(chart_data_week, cls=DecimalEncoder),
     }
 
     return render(request, "transaction.html", context)
