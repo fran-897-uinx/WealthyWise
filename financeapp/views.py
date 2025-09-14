@@ -212,7 +212,7 @@ def landing(request):
     # Top categories (example: top 5 expense categories)
     top_categories = (
         Transaction.objects.filter(user=user, transaction_type="expense")
-        .values("category__name")
+        .values("category")
         .annotate(total=Sum("amount"))
         .order_by("-total")[:5]
     )
