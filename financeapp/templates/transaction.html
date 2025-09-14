@@ -1,4 +1,5 @@
-{% extends "layout.html" %} {% block content %} {% load static %}
+{% extends "layout.html" %} {% block content %} 
+{% load static %}
 
 <script id="chart-data" type="application/json">
   {{ chart_data|safe }}
@@ -260,7 +261,9 @@
             "
           />
           {% else %}
-          <div class="avatar-placeholder">{{ user.profile.get_initials }}</div>
+          <div class="avatar-placeholder">
+            {{ user.profile.get_initials }}
+          </div>
           {% endif %}
         </div>
         <h1>Transaction Dashboard</h1>
@@ -316,7 +319,8 @@
         <div class="account-balance" id="account-{{ account.id }}-balance">
           ₦{{ account.balance|floatformat:2 }}
         </div>
-        <div class="account-meta">Currency: {{ account.currency }}</div>
+        <div class="account-meta">Currency: 
+          {{ account.currency }}</div>
       </div>
       {% endfor %}
     </section>
@@ -354,8 +358,9 @@
               <td
                 class="{% if transaction.transaction_type == 'income' %}amount-positive{% else %}amount-negative{% endif %}"
               >
-                {% if transaction.transaction_type == 'income' %}₦{% else %}-₦{%
-                endif %}{{ transaction.amount|floatformat:2 }}
+                {% if transaction.transaction_type == 'income' %}₦{% else %}-₦
+                {% endif %}
+                {{ transaction.amount|floatformat:2 }}
               </td>
               <td>{{ transaction.account.name }}</td>
             </tr>
