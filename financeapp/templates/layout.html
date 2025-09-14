@@ -197,16 +197,18 @@
 
         <!-- Main Content Area -->
         <main class="main-content" id="mainContent">
-            <header class="content-header">
+           
+
+            {% block content %}
+            <!-- Your page content will be injected here -->
+            {% endblock %}
+             <header class="content-header">
                 <!-- Theme toggle button -->
                 <button id="themeToggle" class="toggle-btn" aria-label="Toggle theme">
                     <i class="fas fa-adjust"></i>
                 </button>
             </header>
-
-            {% block content %}
-            <!-- Your page content will be injected here -->
-            {% endblock %}
+            
         </main>
     </div>
 
