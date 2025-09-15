@@ -1005,6 +1005,14 @@ def faq_view(request):
     return render(request, "faq.html")
 
 
+def terms_view(request):
+    return render(request, "terms.html")
+
+
+def privacy_view(request):
+    return render(request, "privacy_policy.html")
+
+
 # ----------------- Context Processor -----------------
 def user_settings(request):
     if request.user.is_authenticated:

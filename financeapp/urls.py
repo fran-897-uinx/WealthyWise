@@ -43,10 +43,10 @@ urlpatterns = [
     path("faq/", views.faq_view, name="faq"),
     path(
         "privacy-policy/",
-        TemplateView.as_view(template_name="privacy_policy.html"),
+        views.privacy_view,
         name="privacy",
     ),
-    path("terms/", TemplateView.as_view(template_name="terms.html"), name="terms"),
+    path("terms/", views.terms_view, name="terms"),
     # Password reset
     path(
         "password_reset/",
