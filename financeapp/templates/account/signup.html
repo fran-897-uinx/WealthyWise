@@ -337,7 +337,7 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="id_username" class="form-label">Username</label>
                         <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
                                id="id_username" required value="{{ form.username.value|default:'' }}">
@@ -347,7 +347,7 @@
                             {{ form.username.errors.0 }}
                         </div>
                         {% endif %}
-                    </div>
+                    </div> -->
                     
                     <div class="mb-3">
                         <label for="id_email" class="form-label">Email Address</label>
@@ -388,7 +388,7 @@
                         <i class="fas fa-sign-in-alt me-2"></i>Sign in to your account
                     </a>
                 </div>
-                <div class="divider">
+                <div class="divider" style="text-align: center;">
                     <span>or sign up with your social account</span>
                 </div>
                  <div class="btn-google btn btn-primary w-100 py-2 mb-3">
