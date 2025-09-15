@@ -41,6 +41,12 @@ urlpatterns = [
     # Contact (TODO: ensure contact_view exists in views.py)
     path("contact/", views.contact_view, name="contact"),
     path("faq/", views.faq_view, name="faq"),
+    path(
+        "privacy-policy/",
+        TemplateView.as_view(template_name="privacy_policy.html"),
+        name="privacy",
+    ),
+    path("terms/", TemplateView.as_view(template_name="terms.html"), name="terms"),
     # Password reset
     path(
         "password_reset/",
