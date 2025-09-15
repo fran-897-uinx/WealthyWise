@@ -1078,7 +1078,7 @@ def google_login(request):
 
 
 def google_callback(request):
-     GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
+    GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
     GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
     GOOGLE_REDIRECT_URI = settings.GOOGLE_REDIRECT_URI
     code = request.GET.get("code")
