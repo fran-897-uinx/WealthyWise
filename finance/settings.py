@@ -113,6 +113,9 @@ TEMPLATES = [
                 "financeapp.context_processors.app_settings",
                 "financeapp.context_processors.user_settings",
                 "financeapp.context_processors.site_settings",
+                "financeapp.context_processors.google_oauth_settings",
+                "financeapp.context_processors.user_profile",
+                "financeapp.context_processors.dashboard_data",
             ],
         },
     },
@@ -138,6 +141,8 @@ DATABASES = {
         "PORT": os.environ.get("DB_PORT", "5432"),
     }
 }
+
+
 if os.environ.get("DATABASE_URL"):
     DATABASES["default"] = dj_database_url.config(
         default=os.environ["DATABASE_URL"], conn_max_age=600, ssl_require=True
@@ -207,6 +212,10 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # your App Password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 CONTACT_EMAIL = EMAIL_HOST_USER
 
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
+GOOGLE_OAUTH2_SCOPE = os.getenv("GOOGLE_OAUTH2_SCOPE")
 # ==========================
 # Fix SSL Cert Errors (Windows/Python)
 # ==========================

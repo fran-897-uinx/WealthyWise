@@ -5,9 +5,6 @@
 {% bootstrap_javascript %}
 {% load widget_tweaks %}
 {% load humanize %}
-<script>
-    window.DELETE_ACCOUNT_URL = "{% url 'delete_account' %}";
-</script>
 <style>
     /* Account Dashboard Specific Styles */
   .dashboard-container {
@@ -1064,6 +1061,12 @@
     {{ accounts_json|json_script:"accounts-json"|safe }}
 </script>
 
+{% csrf_token %}
+<script>
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+    window.DELETE_ACCOUNT_URL = "{% url 'delete_account' %}";
+</script>
+
  <script>
   // Enhanced form interactions
 document.addEventListener('DOMContentLoaded', function() {
@@ -1275,7 +1278,7 @@ function confirmDelete(accountId) {
 
 // Delete account function
 function deleteAccount(accountId) {
-    const csrfToken = getCookie('csrftoken');
+    const csrfToken = getCookie('csrftoken') || window.CSRF_TOKEN;
     
     // Use the global variable set in your HTML template
     if (!window.DELETE_ACCOUNT_URL) {

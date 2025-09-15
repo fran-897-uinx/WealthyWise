@@ -217,6 +217,12 @@ def landing(request):
         .order_by("-total")[:5]
     )
 
+    # Helper function to convert Decimal to float for JSON serialization
+    def decimal_to_float(obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+
     context = {
         "transactions": transactions,
         "accounts": accounts,
@@ -226,8 +232,8 @@ def landing(request):
         "spent_budget": spent_budget,
         "chart_data": mark_safe(json.dumps(chart_data)),
         "top_category_json": mark_safe(
-            json.dumps(list(top_categories))
-        ),  # Convert QuerySet to list
+            json.dumps(list(top_categories), default=decimal_to_float)
+        ),
     }
     return render(request, "base.html", context)
 
@@ -1055,3 +1061,69 @@ def contact_view(request):
         form = ContactForm()
 
     return render(request, "faq.html", {"form": form})
+
+
+def google_login(request):
+    # Google OAuth 2.0 endpoint
+    auth_url = (
+        "https://accounts.google.com/o/oauth2/v2/auth"
+        "?response_type=code"
+        f"&client_id={GOOGLE_CLIENT_ID}"
+        f"&redirect_uri={GOOGLE_REDIRECT_URI}"
+        "&scope=email profile"
+    )
+    return redirect(auth_url)
+
+
+def google_callback(request):
+    code = request.GET.get("code")
+    if not code:
+        return redirect("/login/")
+
+    token_url = "https://oauth2.googleapis.com/token"
+    data = {
+        "code": code,
+        "client_id": GOOGLE_CLIENT_ID,
+        "client_secret": GOOGLE_CLIENT_SECRET,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "grant_type": "authorization_code",
+    }
+    token_response = requests.post(token_url, data=data).json()
+    access_token = token_response.get("access_token")
+    if not access_token:
+        return redirect("/login/")
+
+    # Get user info
+    userinfo_url = "https://www.googleapis.com/oauth2/v2/userinfo"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    user_info = requests.get(userinfo_url, headers=headers).json()
+
+    email = user_info.get("email")
+    first_name = user_info.get("given_name", "")
+    last_name = user_info.get("family_name", "")
+
+    if not email:
+        return redirect("/login/")
+    # Check if user exists, else create new user
+    try:
+        base_username = (first_name + last_name).lower() or email.split("@")[0]
+        username = base_username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+
+        user, _ = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "username": username,
+                "first_name": first_name,
+                "last_name": last_name,
+            },
+        )
+    except Exception as e:
+        print(f"Error creating user: {e}")
+        return redirect("/login/")
+    # Log the user in
+    login(request, user)
+    return redirect(settings.LOGIN_REDIRECT_URL)

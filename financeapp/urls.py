@@ -10,6 +10,8 @@ urlpatterns = [
     path("signup/", views.signup_view, name="signup"),
     path("login/", views.login_view, name="login"),
     path("logout/", views.custom_logout, name="logout"),
+    path("google/login/", views.google_login, name="google_login"),
+    path("google/callback/", views.google_callback, name="google_callback"),
     # Dashboard + Transactions
     path("", views.landing, name="landing"),  # Home → dashboard
     # path("dashboard/", views.dashboard_view, name="dashboard"),

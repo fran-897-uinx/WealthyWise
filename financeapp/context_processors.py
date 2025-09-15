@@ -79,3 +79,12 @@ def site_settings(request):
         "SITE_NAME": getattr(settings, "SITE_NAME", "WealthyWise"),
         "DOMAIN": getattr(settings, "DOMAIN", "wealthywise.com"),
     }
+
+
+def google_oauth_settings(request):
+    return {
+        "GOOGLE_CLIENT_ID": getattr(settings, "GOOGLE_CLIENT_ID", ""),
+        "GOOGLE_CLIENT_SECRET": getattr(settings, "GOOGLE_CLIENT_SECRET", ""),
+        "GOOGLE_REDIRECT_URI": getattr(settings, "GOOGLE_REDIRECT_URI", ""),
+        "GOOGLE_OAUTH2_SCOPE": getattr(settings, "GOOGLE_OAUTH2_SCOPE", ""),
+    }

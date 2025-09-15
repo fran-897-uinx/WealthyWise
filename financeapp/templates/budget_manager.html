@@ -39,26 +39,26 @@
                         {% endfor %}
                     {% endif %}
                     
-                    <div class="row mb-4 gap-1 ">
-                        <div class="col-md-4">
-                            <div class="card bg-light-success border-0">
-                                <div class="card-body text-center py-3">
+                    <div class="row mb-4 gap-0.5 ">
+                        <div class="col-md-4 h-2">
+                            <div class="card bg-green-900 border-0">
+                                <div class="card-body text-center py-4">
                                     <h6 class="card-title text-muted">Total Budget</h6>
                                     <h3 class="card-text text-success">₦{{ total_budget|floatformat:2 }}</h3>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card bg-light-warning border-0">
-                                <div class="card-body text-center py-3">
+                        <div class="col-md-4 h-2">
+                            <div class="card bg-red-800 border-0">
+                                <div class="card-body text-center py-4">
                                     <h6 class="card-title text-muted">Total Spent</h6>
                                     <h3 class="card-text text-warning">₦{{ total_spent|floatformat:2 }}</h3>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card bg-light-info border-0">
-                                <div class="card-body text-center py-3">
+                        <div class="col-md-4 h-2">
+                            <div class="card bg-yellow-700 border-0">
+                                <div class="card-body text-center py-4">
                                     <h6 class="card-title text-muted">Total Remaining</h6>
                                     <h3 class="card-text text-info">₦{{ total_remaining|floatformat:2 }}</h3>
                                 </div>

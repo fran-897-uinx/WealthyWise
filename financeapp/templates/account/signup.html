@@ -100,6 +100,16 @@
             gap: 0.75rem;
         }
 
+        .btn-google {
+        background-color: #4285F4;
+        color: white;
+        font-weight: 600;
+        transition: background-color 0.2s ease-in-out;
+        }
+        
+        .btn-google:hover {
+        background-color: #3367D6;
+        }
         .feature-list {
             list-style: none;
             padding: 0;
@@ -378,6 +388,15 @@
                         <i class="fas fa-sign-in-alt me-2"></i>Sign in to your account
                     </a>
                 </div>
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                 <div class="auth-links">
+                <a href="{% url 'google_login' %}" class="btn-google">
+                    <img src="/static/icons/google.svg" alt="Google" class="h-5 w-5">
+                    Sign up with Google
+                    </a>
+                 </div>
             </div>
         </div>
     </div>
