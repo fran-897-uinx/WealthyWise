@@ -1064,7 +1064,9 @@ def contact_view(request):
 
 
 def google_login(request):
-    # Google OAuth 2.0 endpoint
+    GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
+    GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
+    GOOGLE_REDIRECT_URI = settings.GOOGLE_REDIRECT_URI
     auth_url = (
         "https://accounts.google.com/o/oauth2/v2/auth"
         "?response_type=code"
@@ -1076,6 +1078,9 @@ def google_login(request):
 
 
 def google_callback(request):
+     GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
+    GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
+    GOOGLE_REDIRECT_URI = settings.GOOGLE_REDIRECT_URI
     code = request.GET.get("code")
     if not code:
         return redirect("/login/")
