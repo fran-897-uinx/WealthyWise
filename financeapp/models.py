@@ -125,7 +125,8 @@ def save_user_profile(sender, instance, **kwargs):
         if hasattr(instance, 'profile'):
             instance.profile.save()
     except Exception as e:
-        logger.error(f"Error saving user profile for {instance.username}: {str(e)}")
+        logger.error(f"Error saving user profi
+                     le for {instance.username}: {str(e)}")
 
 
 
