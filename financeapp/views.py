@@ -1101,7 +1101,8 @@ def google_login(request):
     )
     return redirect(auth_url)
 
-user = get_user_model()
+User = get_user_model()
+
 def google_callback(request):
     code = request.GET.get("code")
     if not code:
@@ -1134,7 +1135,7 @@ def google_callback(request):
         return redirect("/login/")
 
     # Always use email as username
-    user, created = user.objects.get_or_create(
+    user = User.objects.get_or_create(
         email=email,
         defaults={
             "username": email,
