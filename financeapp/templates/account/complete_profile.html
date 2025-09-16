@@ -1,10 +1,13 @@
 {% load static %}
+{% load widget_tweaks %} {# so we can add Bootstrap classes to form fields #}
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - WealthyWise</title>
+    <title>Complete Profile - WealthyWise</title>
+
+    <!-- Fonts & Icons -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
@@ -13,11 +16,13 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link
+    <!-- <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
-    />
+    /> -->
+
     <style>
+      /* === Same design tokens from login page === */
       :root {
         --bg: #0b0f14;
         --panel: #111821;
@@ -27,7 +32,6 @@
         --accent-2: #7c5cff;
         --danger: #ff6b6b;
         --success: #3ddc97;
-        --warning: #fbbf24;
         --info: #38bdf8;
         --card: #0f141b;
         --border: #1a2330;
@@ -35,7 +39,6 @@
         --radius: 16px;
         --radius-sm: 12px;
       }
-
       [data-theme="light"] {
         --bg: #f5f7fa;
         --panel: #ffffff;
@@ -45,7 +48,6 @@
         --accent-2: #8b5cf6;
         --danger: #ef4444;
         --success: #10b981;
-        --warning: #f59e0b;
         --info: #0ea5e9;
         --card: #ffffff;
         --border: #e5e7eb;
@@ -59,105 +61,34 @@
         min-height: 100vh;
         display: flex;
         align-items: center;
-        background-image: radial-gradient(
-            circle at 15% 50%,
-            rgba(74, 168, 255, 0.1) 0%,
-            transparent 25%
-          ),
-          radial-gradient(
-            circle at 85% 30%,
-            rgba(124, 92, 255, 0.1) 0%,
-            transparent 25%
-          );
       }
 
-      .login-container {
-        max-width: 1200px;
+      .complete-profile-container {
+        max-width: 600px;
         margin: 0 auto;
         padding: 2rem;
       }
 
-      .login-card {
+      .card-custom {
         background: var(--panel);
         border-radius: var(--radius);
         box-shadow: var(--shadow);
         border: 1px solid var(--border);
-        overflow: hidden;
+        padding: 2rem;
       }
 
-      .login-left {
+      .btn-primary {
         background: linear-gradient(135deg, var(--accent), var(--accent-2));
-        color: white;
-        padding: 3rem 2rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        transition: all 0.3s ease;
       }
 
-      .login-left::before {
-        content: "";
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 100%;
-        height: 200%;
-        background: rgba(255, 255, 255, 0.1);
-        transform: rotate(-15deg);
-      }
-
-      .brand {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .feature-list {
-        list-style: none;
-        padding: 0;
-        margin: 2rem 0;
-      }
-
-      .feature-list li {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-        font-weight: 500;
-      }
-
-      .feature-list i {
-        background: rgba(255, 255, 255, 0.2);
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .login-right {
-        padding: 3rem 2rem;
-      }
-
-      .login-header {
-        text-align: center;
-        margin-bottom: 2rem;
-      }
-
-      .login-header h2 {
-        font-weight: 700;
-        color: var(--text);
-        margin-bottom: 0.5rem;
-      }
-
-      .login-header p {
-        color: var(--muted);
-        font-size: 1.1rem;
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(74, 168, 255, 0.3);
       }
 
       .form-control {
@@ -189,62 +120,13 @@
         cursor: pointer;
       }
 
-      .btn-primary {
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
-        border: none;
-        padding: 0.75rem 1.5rem;
+      .alert-error {
+        background-color: rgba(255, 107, 107, 0.1);
+        border: 1px solid var(--danger);
+        color: var(--danger);
         border-radius: var(--radius-sm);
-        font-weight: 600;
-        transition: all 0.3s ease;
-      }
-
-      .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(74, 168, 255, 0.3);
-      }
-
-      .divider {
-        display: flex;
-        align-items: center;
-        margin: 1.5rem 0;
-        color: var(--muted);
-      }
-
-      .divider::before,
-      .divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: var(--border);
-      }
-
-      .divider span {
-        padding: 0 1rem;
-      }
-
-      .auth-links {
-        text-align: center;
-        margin-top: 1.5rem;
-      }
-
-      .auth-links a {
-        color: var(--accent);
-        text-decoration: none;
-        transition: color 0.3s ease;
-      }
-
-      .auth-links a:hover {
-        color: var(--accent-2);
-      }
-
-      @media (max-width: 992px) {
-        .login-left {
-          display: none;
-        }
-
-        .login-container {
-          padding: 1rem;
-        }
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
       }
 
       .theme-toggle {
@@ -264,161 +146,96 @@
         z-index: 1000;
         box-shadow: var(--shadow);
       }
-
-      .alert {
-        border-radius: var(--radius-sm);
-        padding: 0.75rem 1rem;
-        margin-bottom: 1rem;
-      }
-
-      .alert-error {
-        background-color: rgba(255, 107, 107, 0.1);
-        border: 1px solid var(--danger);
-        color: var(--danger);
-      }
-
-      .alert-success {
-        background-color: rgba(61, 220, 151, 0.1);
-        border: 1px solid var(--success);
-        color: var(--success);
-      }
-
-      .alert-info {
-        background-color: rgba(56, 189, 248, 0.1);
-        border: 1px solid var(--info);
-        color: var(--info);
-      }
     </style>
   </head>
   <body>
+    <!-- Theme Toggle -->
     <button class="theme-toggle" id="themeToggle">
       <i class="fas fa-moon"></i>
     </button>
 
-    <div class="login-container">
-      <div class="row g-0 login-card">
-        <div class="col-lg-6 login-left">
-          <div class="brand">
-            <i class="fas fa-chart-line"></i>
-            WealthyWise
-          </div>
-          <p class="lead">
-            Take control of your finances with our comprehensive wealth
-            management platform.
-          </p>
-          <ul class="feature-list">
-            <li><i class="fas fa-chart-pie"></i> Track expenses and income</li>
-            <li><i class="fas fa-wallet"></i> Manage multiple accounts</li>
-            <li>
-              <i class="fas fa-bullseye"></i> Set and achieve financial goals
-            </li>
-            <li><i class="fas fa-shield-alt"></i> Secure and encrypted data</li>
-          </ul>
-        </div>
-        <div class="col-lg-6 login-right">
-          <div class="login-header">
-            <h2>Welcome Back</h2>
-            <p>Sign in to continue your financial journey</p>
-          </div>
+    <div class="complete-profile-container">
+      <div class="card-custom">
+        <h2 class="mb-3 text-center">Finish setting up your account</h2>
+        <p class="text-center text-muted mb-4">
+          Hi {{ user.first_name|default:user.username }}, please set a password
+          so you can log in directly next time without Google.
+        </p>
 
-          {% if messages %} {% for message in messages %}
-          <div
-            class="alert alert-{% if message.tags == 'error' %}error{% else %}info{% endif %}"
-          >
-            <i
-              class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"
-            ></i>
-            {{ message }}
-          </div>
-          {% endfor %} {% endif %} {% if form.errors %}
-          <div class="alert alert-error">
+        {% if form.errors %}
+          <div class="alert-error">
             <i class="fas fa-exclamation-circle me-2"></i>
-            Please enter a correct username and password. Note that both fields
-            may be case-sensitive.
+            Please correct the errors below.
           </div>
-          {% endif %}
+        {% endif %}
 
-          <form method="post">
-            {% csrf_token %}
-            <h2>Finish setting up your account</h2>
-            <p>
-              Please choose a password you can use to sign in directly next
-              time.
-            </p>
-            {{ form.as_p }}
-            <button type="submit">Set password</button>
-          </form>
-
-          <div class="divider">
-            <span>Or</span>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3 password-field">
+            {{ form.new_password1.label_tag }}
+            {% render_field form.new_password1 class="form-control" %}
+            <button type="button" id="passwordToggle" class="password-toggle">
+              <i class="fas fa-eye"></i>
+            </button>
           </div>
 
-          <div class="auth-links">
-            <a href="{% url 'signup' %}" class="d-block mb-2">
-              <i class="fas fa-user-plus me-2"></i>Don't have an account? Sign
-              up
-            </a>
-            <a href="{% url 'password_reset' %}">
-              <i class="fas fa-key me-2"></i>Forgot your password?
-            </a>
+          <div class="mb-3">
+            {{ form.new_password2.label_tag }}
+            {% render_field form.new_password2 class="form-control" %}
           </div>
-        </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            Save Password
+          </button>
+        </form>
       </div>
     </div>
 
     <script>
-      // Theme toggle functionality
       document.addEventListener("DOMContentLoaded", function () {
         const themeToggle = document.getElementById("themeToggle");
         const themeIcon = themeToggle.querySelector("i");
 
-        // Check for saved theme preference or use OS preference
+        // Load theme preference
         const savedTheme =
           localStorage.getItem("theme") ||
           (window.matchMedia("(prefers-color-scheme: dark)").matches
             ? "dark"
             : "light");
-
-        // Apply the saved theme
         document.documentElement.setAttribute("data-theme", savedTheme);
         updateThemeIcon(savedTheme);
 
-        // Toggle theme on button click
         themeToggle.addEventListener("click", function () {
           const currentTheme =
             document.documentElement.getAttribute("data-theme");
           const newTheme = currentTheme === "dark" ? "light" : "dark";
-
           document.documentElement.setAttribute("data-theme", newTheme);
           localStorage.setItem("theme", newTheme);
-
           updateThemeIcon(newTheme);
         });
 
         function updateThemeIcon(theme) {
-          if (theme === "dark") {
-            themeIcon.className = "fas fa-sun";
-          } else {
-            themeIcon.className = "fas fa-moon";
-          }
+          themeIcon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
         }
 
-        // Password toggle functionality
+        // Password toggle
         const passwordToggle = document.getElementById("passwordToggle");
-        const passwordInput = document.getElementById("id_password");
+        const passwordInput = document.getElementById("id_new_password1");
+        if (passwordToggle && passwordInput) {
+          passwordToggle.addEventListener("click", function () {
+            if (passwordInput.type === "password") {
+              passwordInput.type = "text";
+              passwordToggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+              passwordInput.type = "password";
+              passwordToggle.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+          });
+        }
 
-        passwordToggle.addEventListener("click", function () {
-          if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            passwordToggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
-          } else {
-            passwordInput.type = "password";
-            passwordToggle.innerHTML = '<i class="fas fa-eye"></i>';
-          }
-        });
-
-        // Auto-focus on username field
-        document.getElementById("id_username").focus();
+        // Autofocus first field
+        const focusField = document.getElementById("id_new_password1");
+        if (focusField) focusField.focus();
       });
     </script>
   </body>

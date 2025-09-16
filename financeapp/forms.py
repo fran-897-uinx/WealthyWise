@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import Transaction, Account, UserProfile, ContactMessage
 from django.contrib.auth import authenticate
+from django.contrib.auth.forms import SetPasswordForm as DjangoSetPasswordForm
+
 
 class CustomSignupForm(forms.ModelForm):
     first_name = forms.CharField(max_length=30, required=True)
@@ -136,4 +138,29 @@ class ContactForm(forms.ModelForm):
         }
 
 
-class SetPasswordForm(forms.Modelform)
+class SetPasswordForm(DjangoSetPasswordForm):
+    """
+    Custom SetPasswordForm for users who signed up with Google login.
+    Extends Django's built-in SetPasswordForm but adds styling hooks.
+    """
+
+    new_password1 = forms.CharField(
+        label="New Password",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Enter new password",
+                "id": "id_new_password1",
+            }
+        ),
+    )
+    new_password2 = forms.CharField(
+        label="Confirm New Password",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Confirm new password",
+                "id": "id_new_password2",
+            }
+        ),
+    )
