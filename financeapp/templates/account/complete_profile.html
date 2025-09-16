@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign Up - WealthyWise</title>
+    <title>Login - WealthyWise</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
@@ -71,37 +71,13 @@
           );
       }
 
-      .toast {
-        position: fixed;
-        bottom: 1rem;
-        right: 1rem;
-        background: #dc3545; /* red for error */
-        color: white;
-        padding: 0.75rem 1rem;
-        border-radius: 0.5rem;
-        opacity: 0;
-        transform: translateY(20px);
-        transition: all 0.3s ease;
-        z-index: 9999;
-      }
-      .toast.success {
-        background: #28a745;
-      } /* green */
-      .toast.error {
-        background: #dc3545;
-      } /* red */
-      .toast.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      .signup-container {
+      .login-container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
       }
 
-      .signup-card {
+      .login-card {
         background: var(--panel);
         border-radius: var(--radius);
         box-shadow: var(--shadow);
@@ -109,7 +85,7 @@
         overflow: hidden;
       }
 
-      .signup-left {
+      .login-left {
         background: linear-gradient(135deg, var(--accent), var(--accent-2));
         color: white;
         padding: 3rem 2rem;
@@ -120,7 +96,7 @@
         overflow: hidden;
       }
 
-      .signup-left::before {
+      .login-left::before {
         content: "";
         position: absolute;
         top: -50%;
@@ -140,16 +116,6 @@
         gap: 0.75rem;
       }
 
-      .btn-google {
-        background-color: #4285f4;
-        color: white;
-        font-weight: 600;
-        transition: background-color 0.2s ease-in-out;
-      }
-
-      .btn-google:hover {
-        background-color: #3367d6;
-      }
       .feature-list {
         list-style: none;
         padding: 0;
@@ -174,22 +140,22 @@
         justify-content: center;
       }
 
-      .signup-right {
+      .login-right {
         padding: 3rem 2rem;
       }
 
-      .signup-header {
+      .login-header {
         text-align: center;
         margin-bottom: 2rem;
       }
 
-      .signup-header h2 {
+      .login-header h2 {
         font-weight: 700;
         color: var(--text);
         margin-bottom: 0.5rem;
       }
 
-      .signup-header p {
+      .login-header p {
         color: var(--muted);
         font-size: 1.1rem;
       }
@@ -271,17 +237,12 @@
         color: var(--accent-2);
       }
 
-      .form-text {
-        color: var(--muted);
-        font-size: 0.875rem;
-      }
-
       @media (max-width: 992px) {
-        .signup-left {
+        .login-left {
           display: none;
         }
 
-        .signup-container {
+        .login-container {
           padding: 1rem;
         }
       }
@@ -315,6 +276,18 @@
         border: 1px solid var(--danger);
         color: var(--danger);
       }
+
+      .alert-success {
+        background-color: rgba(61, 220, 151, 0.1);
+        border: 1px solid var(--success);
+        color: var(--success);
+      }
+
+      .alert-info {
+        background-color: rgba(56, 189, 248, 0.1);
+        border: 1px solid var(--info);
+        color: var(--info);
+      }
     </style>
   </head>
   <body>
@@ -322,16 +295,16 @@
       <i class="fas fa-moon"></i>
     </button>
 
-    <div class="signup-container">
-      <div class="row g-0 signup-card">
-        <div class="col-lg-6 signup-left">
+    <div class="login-container">
+      <div class="row g-0 login-card">
+        <div class="col-lg-6 login-left">
           <div class="brand">
             <i class="fas fa-chart-line"></i>
             WealthyWise
           </div>
           <p class="lead">
-            Start your journey to financial freedom with our comprehensive
-            wealth management platform.
+            Take control of your finances with our comprehensive wealth
+            management platform.
           </p>
           <ul class="feature-list">
             <li><i class="fas fa-chart-pie"></i> Track expenses and income</li>
@@ -342,133 +315,56 @@
             <li><i class="fas fa-shield-alt"></i> Secure and encrypted data</li>
           </ul>
         </div>
-        <div class="col-lg-6 signup-right">
-          <div class="signup-header">
-            <h2>Create Your Account</h2>
-            <p>Join thousands managing their finances smarter</p>
+        <div class="col-lg-6 login-right">
+          <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to continue your financial journey</p>
           </div>
+
+          {% if messages %} {% for message in messages %}
+          <div
+            class="alert alert-{% if message.tags == 'error' %}error{% else %}info{% endif %}"
+          >
+            <i
+              class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"
+            ></i>
+            {{ message }}
+          </div>
+          {% endfor %} {% endif %} {% if form.errors %}
+          <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            Please enter a correct username and password. Note that both fields
+            may be case-sensitive.
+          </div>
+          {% endif %}
 
           <form method="post">
             {% csrf_token %}
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="id_first_name" class="form-label">First Name</label>
-                <input
-                  type="text"
-                  name="first_name"
-                  class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
-                  id="id_first_name"
-                  required
-                  value="{{ form.first_name.value|default:'' }}"
-                />
-                {% if form.first_name.errors %}
-                <div class="invalid-feedback">
-                  {{ form.first_name.errors.0 }}
-                </div>
-                {% endif %}
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="id_last_name" class="form-label">Last Name</label>
-                <input
-                  type="text"
-                  name="last_name"
-                  class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
-                  id="id_last_name"
-                  required
-                  value="{{ form.last_name.value|default:'' }}"
-                />
-                {% if form.last_name.errors %}
-                <div class="invalid-feedback">
-                  {{ form.last_name.errors.0 }}
-                </div>
-                {% endif %}
-              </div>
-            </div>
-
-            <div class="mb-3">
-                        <label for="id_username" class="form-label">Username</label>
-                        <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
-                               id="id_username" required value="{{ form.username.value|default:'' }}">
-                        <div class="form-text">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
-                        {% if form.username.errors %}
-                        <div class="invalid-feedback">
-                            {{ form.username.errors.0 }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-            <div class="mb-3">
-              <label for="id_email" class="form-label">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                class="form-control {% if form.email.errors %}is-invalid{% endif %}"
-                id="id_email"
-                required
-                value="{{ form.email.value|default:'' }}"
-              />
-              {% if form.email.errors %}
-              <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
-              {% endif %}
-            </div>
-
-            <div class="mb-3 password-field">
-              <label for="id_password" class="form-label">Password</label>
-              <input
-                type="password"
-                name="password"
-                class="form-control {% if form.password.errors %}is-invalid{% endif %}"
-                id="id_password"
-                required
-              />
-              <button type="button" class="password-toggle" id="passwordToggle">
-                <i class="fas fa-eye"></i>
-              </button>
-              {% if form.password.errors %}
-              <div class="invalid-feedback">{{ form.password.errors.0 }}</div>
-              {% endif %}
-            </div>
-
-            <button class="btn btn-primary w-100 py-2 mb-3" type="submit">
-              <i class="fas fa-user-plus me-2"></i>Create Account
-            </button>
+            <h2>Finish setting up your account</h2>
+            <p>
+              Please choose a password you can use to sign in directly next
+              time.
+            </p>
+            {{ form.as_p }}
+            <button type="submit">Set password</button>
           </form>
 
           <div class="divider">
-            <span>Already have an account?</span>
+            <span>Or</span>
           </div>
 
           <div class="auth-links">
-            <a href="{% url 'login' %}">
-              <i class="fas fa-sign-in-alt me-2"></i>Sign in to your account
+            <a href="{% url 'signup' %}" class="d-block mb-2">
+              <i class="fas fa-user-plus me-2"></i>Don't have an account? Sign
+              up
             </a>
-          </div>
-          <div class="divider" style="text-align: center">
-            <span>or sign up with your social account</span>
-          </div>
-          <div class="btn-google btn btn-primary w-100 py-2 mb-3">
-            <a
-              href="{% url 'google_login' %}"
-              class="text-light"
-              style="text-decoration: none"
-            >
-              <i class="fab fa-google me-2"></i>
-              Sign up with Google
+            <a href="{% url 'password_reset' %}">
+              <i class="fas fa-key me-2"></i>Forgot your password?
             </a>
           </div>
         </div>
       </div>
     </div>
-
-    {% if form.errors %}
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        showToast("Please correct the errors below.", "error");
-      });
-    </script>
-    {% endif %}
 
     <script>
       // Theme toggle functionality
@@ -520,30 +416,10 @@
             passwordToggle.innerHTML = '<i class="fas fa-eye"></i>';
           }
         });
+
+        // Auto-focus on username field
+        document.getElementById("id_username").focus();
       });
-
-      // Toast notification functionality
-      function showToast(message, type = "success") {
-        const toast = document.createElement("div");
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `
-        <i class="fas fa-${
-          type === "success" ? "check-circle" : "exclamation-circle"
-        } me-2"></i>
-        <span>${message}</span>
-    `;
-
-        document.body.appendChild(toast);
-
-        // Animate in
-        setTimeout(() => toast.classList.add("show"), 100);
-
-        // Auto-remove after 3s
-        setTimeout(() => {
-          toast.classList.remove("show");
-          setTimeout(() => toast.remove(), 300);
-        }, 3000);
-      }
     </script>
   </body>
 </html>

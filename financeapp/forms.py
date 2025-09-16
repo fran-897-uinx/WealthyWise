@@ -3,24 +3,26 @@ from django.contrib.auth.models import User
 from .models import Transaction, Account, UserProfile, ContactMessage
 from django.contrib.auth import authenticate
 
-
 class CustomSignupForm(forms.ModelForm):
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(required=True)
     username = forms.CharField(max_length=30, required=True)
+    password = forms.CharField(widget=forms.PasswordInput, required=True)
 
     class Meta:
         model = User
         fields = ["username", "password", "first_name", "last_name", "email"]
 
-    def save(self, request):
-        user = super().save(request)
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
         user.email = self.cleaned_data["email"]
         user.username = self.cleaned_data["username"]
-        user.save()
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
         return user
 
 
@@ -132,3 +134,6 @@ class ContactForm(forms.ModelForm):
                 'placeholder': 'Enter your message...',
             }),
         }
+
+
+class SetPasswordForm(forms.Modelform)

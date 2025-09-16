@@ -47,6 +47,8 @@ urlpatterns = [
         name="privacy",
     ),
     path("terms/", views.terms_view, name="terms"),
+    path("complete-profile/", views.complete_profile, name="complete_profile")
+
     # Password reset
     path(
         "password_reset/",

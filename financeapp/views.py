@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import logout as auth_logout, login, update_session_auth_hash
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST, require_GET
@@ -33,7 +34,15 @@ from .models import (
     ContactMessage,
     Budget,
 )
-from .forms import TransactionForm, AccountForm, UserProfileForm, UserForm, ContactForm
+from .forms import (
+    TransactionForm,
+    AccountForm,
+    UserProfileForm,
+    UserForm,
+    ContactForm,
+    CustomSignupForm,
+    SetPasswordForm,
+)
 
 
 # ----------------- Utilities -----------------
@@ -254,13 +263,15 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, "account/login.html", {"form": form})
 
-
 def signup_view(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = CustomSignupForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.set_password(request.POST.get("password"))
+            user.save()
             login(request, user)
+
             # Send welcome email
             try:
                 send_mail(
@@ -274,11 +285,12 @@ def signup_view(request):
                 )
             except Exception:
                 pass
+
             return redirect("landing")
     else:
-        form = UserCreationForm()
-    return render(request, "account/signup.html", {"form": form})
+        form = CustomSignupForm()
 
+    return render(request, "account/signup.html", {"form": form})
 
 @login_required
 def custom_logout(request):
@@ -1072,9 +1084,9 @@ def contact_view(request):
 
 
 def google_login(request):
-    GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
-    GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
-    GOOGLE_REDIRECT_URI = settings.GOOGLE_REDIRECT_URI
+    GOOGLE_CLIENT_ID = GOOGLE_CLIENT_ID
+    GOOGLE_CLIENT_SECRET = GOOGLE_CLIENT_SECRET
+    GOOGLE_REDIRECT_URI = GOOGLE_REDIRECT_URI
     auth_url = (
         "https://accounts.google.com/o/oauth2/v2/auth"
         "?response_type=code"
@@ -1086,19 +1098,17 @@ def google_login(request):
 
 
 def google_callback(request):
-    GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
-    GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
-    GOOGLE_REDIRECT_URI = settings.GOOGLE_REDIRECT_URI
     code = request.GET.get("code")
     if not code:
         return redirect("/login/")
 
+    # Exchange code for token
     token_url = "https://oauth2.googleapis.com/token"
     data = {
         "code": code,
-        "client_id": GOOGLE_CLIENT_ID,
-        "client_secret": GOOGLE_CLIENT_SECRET,
-        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "client_id": settings.GOOGLE_CLIENT_ID,
+        "client_secret": settings.GOOGLE_CLIENT_SECRET,
+        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
         "grant_type": "authorization_code",
     }
     token_response = requests.post(token_url, data=data).json()
@@ -1106,7 +1116,7 @@ def google_callback(request):
     if not access_token:
         return redirect("/login/")
 
-    # Get user info
+    # Fetch user info
     userinfo_url = "https://www.googleapis.com/oauth2/v2/userinfo"
     headers = {"Authorization": f"Bearer {access_token}"}
     user_info = requests.get(userinfo_url, headers=headers).json()
@@ -1117,26 +1127,35 @@ def google_callback(request):
 
     if not email:
         return redirect("/login/")
-    # Check if user exists, else create new user
-    try:
-        base_username = (first_name + last_name).lower() or email.split("@")[0]
-        username = base_username
-        counter = 1
-        while User.objects.filter(username=username).exists():
-            username = f"{base_username}{counter}"
-            counter += 1
 
-        user, _ = User.objects.get_or_create(
-            email=email,
-            defaults={
-                "username": username,
-                "first_name": first_name,
-                "last_name": last_name,
-            },
-        )
-    except Exception as e:
-        print(f"Error creating user: {e}")
-        return redirect("/login/")
-    # Log the user in
+    # Always use email as username
+    user, _ = User.objects.get_or_create(
+        email=email,
+        defaults={
+            "username": email,
+            "first_name": first_name,
+            "last_name": last_name,
+        },
+    )
+
+    # Login user
     login(request, user)
+
+    # Redirect based on whether they have a usable password
+    if not user.has_usable_password():
+        return redirect("complete_profile")
     return redirect(settings.LOGIN_REDIRECT_URL)
+
+
+@login_required
+def complete_profile(request):
+    # Ask user to set a site password after Google login
+    if request.method == "POST":
+        form = SetPasswordForm(request.user, request.POST)  # handles validation+save
+        if form.is_valid():
+            form.save()  # sets hashed password on request.user
+            update_session_auth_hash(request, request.user)  # keep them logged in
+            return redirect("landing")  # or your desired page
+    else:
+        form = SetPasswordForm(request.user)
+    return render(request, "account/complete_profile.html", {"form": form})
