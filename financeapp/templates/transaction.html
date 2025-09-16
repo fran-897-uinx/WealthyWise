@@ -169,6 +169,20 @@
     margin-bottom: 1rem;
     background: var(--card);
   }
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  .form-select{
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
   .transaction-type-cards {
     display: flex;
     gap: 1rem;
@@ -190,7 +204,7 @@
   }
   .type-card.active {
     border-color: var(--border);
-    background: var(--card, rgba(6, 120, 243, 0.1));
+    background: var( rgba(10, 69, 121, 0.877));
     box-shadow: 0 4px 12px rgba(2, 25, 49, 0.2);}
 
   .type-card.income:hover {
@@ -214,6 +228,14 @@
     align-items: center;
     background: var(--card);
     border-radius: 0.5rem;
+  }
+  .form-control{
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    transition: all 0.3s ease;
   }
   .amount-input-group .currency-symbol {
     padding: 0.5rem;
