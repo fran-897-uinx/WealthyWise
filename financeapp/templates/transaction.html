@@ -164,10 +164,14 @@
   }
   .form-group {
     margin-bottom: 1rem;
+    background: var(--card);
   }
   .transaction-type-cards {
     display: flex;
     gap: 1rem;
+    margin-bottom: 0.5rem;
+    background: var(--card);
+    margin-top: 0.5rem;
   }
   .type-card {
     flex: 1;
@@ -185,19 +189,18 @@
     border-color: var(--border);
     background: var(--shadow, rgba(0, 123, 255, 0.1));
   }
-  .type-card.income {
+  .type-card.income:hover {
     border-color: green;
-    background: var(--shadow, rgba(0, 255, 0, 0.1));
   }
-  .type-card.expense {
+  .type-card.expense:hover {
     border-color: red;
-    background: var(--shadow, rgba(255, 0, 0, 0.1));
-
   }
   .account-balance-info {
     margin-top: 0.3rem;
     font-size: 0.85rem;
     display: none;
+    color: var(--muted);
+    background: var(--panel);
   }
   .account-balance-info.show {
     display: block;
@@ -205,6 +208,8 @@
   .amount-input-group {
     display: flex;
     align-items: center;
+    background: var(--card);
+    border-radius: 0.5rem;
   }
   .amount-input-group .currency-symbol {
     padding: 0.5rem;
@@ -216,6 +221,8 @@
   .amount-input-group input {
     flex: 1;
     border-radius: 0 0.5rem 0.5rem 0;
+    border: 1px solid var(--border);
+    background: var(--card);
   }
 
   /* =======================
