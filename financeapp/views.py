@@ -1131,7 +1131,7 @@ def google_callback(request):
     # Always use email as username
     user = request.user
 
-    user = User.objects.get_or_create(
+    user = user.objects.get_or_create(
         email=email,
         defaults={
             "username": email,
