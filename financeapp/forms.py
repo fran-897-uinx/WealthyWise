@@ -43,15 +43,20 @@ class AccountForm(forms.ModelForm):
         model = Account
         fields = ["account_type", "name", "account_number", "balance", "currency", "last_transaction_date"]
         widgets = {
-            "account_type": forms.Select(attrs={'class': 'form-control'}),
-            "name": forms.TextInput(attrs={'class': 'form-control'}),
-            "account_number": forms.TextInput(attrs={'class': 'form-control'}),
-            "balance": forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            "currency": forms.TextInput(attrs={'class': 'form-control'}), "value":"NGN",
-            "last_transaction_date": forms.DateInput(attrs={
-                "type": "datetime-local",  # Changed to date instead of datetime-local
-                "class": "form-control"
-            }),
+            "account_type": forms.Select(attrs={"class": "form-control"}),
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "account_number": forms.TextInput(attrs={"class": "form-control"}),
+            "balance": forms.NumberInput(
+                attrs={"class": "form-control", "step": "0.01"}
+            ),
+            "currency": forms.Select(attrs={"class": "form-control"}),
+            "value": "NGN",
+            "last_transaction_date": forms.DateInput(
+                attrs={
+                    "type": "datetime-local",  # Changed to date instead of datetime-local
+                    "class": "form-control",
+                }
+            ),
         }
 
 class UserForm(forms.ModelForm):

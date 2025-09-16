@@ -145,7 +145,12 @@ class Account(models.Model):
         ("Credit", "Credit Card"),
         ("Investment", "Investment"),
     )
-    
+
+    CURRENCY = (
+        ("NGN", "NGN"),
+        ("USD", "USD"),
+        ("EUR", "EUR"),
+    )
     is_active = models.BooleanField(default=True, db_index=True)
     account_type = models.CharField(max_length=15, choices=ACCOUNT_TYPES)
     user = models.ForeignKey(
@@ -154,7 +159,7 @@ class Account(models.Model):
         related_name="accounts"
     )
     name = models.CharField(max_length=100)
-    
+
     # Account number validation
     account_number = models.CharField(
         max_length=20, 
@@ -169,11 +174,11 @@ class Account(models.Model):
         default=0
     )
 
-    currency = models.CharField(max_length=3, default="NGN")
+    currency = models.CharField(max_length=3, default="NGN", choices=CURRENCY)
     last_transaction_date = models.DateTimeField(blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    
+
     class Meta:
         indexes = [
             models.Index(fields=['user', 'is_active']),
@@ -196,11 +201,11 @@ class Account(models.Model):
     def clean(self):
         """Validate the model before saving"""
         super().clean()
-        
+
         # Ensure balance is not negative
         if self.balance < 0:
             raise ValidationError({'balance': 'Account balance cannot be negative.'})
-    
+
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
