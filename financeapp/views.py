@@ -1129,7 +1129,8 @@ def google_callback(request):
         return redirect("/login/")
 
     # Always use email as username
-    user = get_user_model()
+    user = request.user
+
     user = User.objects.get_or_create(
         email=email,
         defaults={
