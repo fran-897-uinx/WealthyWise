@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-import django.contrib.auth
+from django.contrib.auth import login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
