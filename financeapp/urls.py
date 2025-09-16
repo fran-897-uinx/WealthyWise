@@ -6,10 +6,6 @@ from django.conf.urls.static import static
 from two_factor.urls import urlpatterns as tf_urls
 
 
-def trigger_error(request):
-    division_by_zero = 1 / 0
-
-
 urlpatterns = [
     # Two-Factor Authentication (keep only here, remove from app urls.py)
     path("account/", include(tf_urls)),

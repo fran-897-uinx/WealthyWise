@@ -125,9 +125,7 @@ def save_user_profile(sender, instance, **kwargs):
         if hasattr(instance, 'profile'):
             instance.profile.save()
     except Exception as e:
-        logger.error(f"Error saving user profi
-                     le for {instance.username}: {str(e)}")
-
+        logger.error(f"Error saving user profile for {instance.username}: {str(e)}")
 
 
 class SomeOtherModel(models.Model):
@@ -526,8 +524,6 @@ def transaction_summary(user, start_date=None, end_date=None):
             "transfers": 0,
             "transaction_count": 0,
         }
-        
-        
 
 
 class ContactMessage(models.Model):
@@ -540,9 +536,8 @@ class ContactMessage(models.Model):
     
     def __str__(self):
         return f"{self.subject} - {self.name}"
-    
-    
-    
+
+
 # Add to your existing models
 class Budget(models.Model):
     BUDGET_CATEGORIES = (

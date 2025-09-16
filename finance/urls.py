@@ -23,6 +23,10 @@ from django.conf import settings
 from two_factor.urls import urlpatterns as tf_urls
 
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
+
 urlpatterns = [
     # Secure admin
     path(f"{settings.ADMIN_URL}", admin.site.urls),

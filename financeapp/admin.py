@@ -91,7 +91,7 @@ class AppSettingsAdmin(UnfoldModelAdmin):
         return not AppSettings.objects.exists()
 
 
-class BalanceFilter(UnfoldModelAdmin.SimpleListFilter):
+class BalanceFilter(UnfoldModelAdmin):
     """Filter accounts by balance range"""
     title = 'balance range'
     parameter_name = 'balance_range'
@@ -119,7 +119,13 @@ class BalanceFilter(UnfoldModelAdmin.SimpleListFilter):
 class AccountAdmin(UnfoldModelAdmin):
     list_display = ('name', 'user', 'account_type', 'get_formatted_balance', 
                    'currency', 'is_active', 'last_updated')
-    list_filter = ('account_type', 'currency', 'is_active', 'last_updated', BalanceFilter)
+    listFilter = (
+        "account_type",
+        "currency",
+        "is_active",
+        "last_updated",
+        BalanceFilter,
+    )
     search_fields = ('name', 'account_number', 'user__username', 'user__email')
     readonly_fields = ('account_number', 'last_updated', 'created_at', 'last_transaction_date')
     list_editable = ('is_active',)
@@ -184,7 +190,7 @@ class AccountAdmin(UnfoldModelAdmin):
         self.message_user(request, f'Recalculated balances for {queryset.count()} accounts.')
 
 
-class AmountRangeFilter(UnfoldModelAdmin.SimpleListFilter):
+class AmountRangeFilter(UnfoldModelAdmin):
     """Filter transactions by amount range"""
     title = 'amount range'
     parameter_name = 'amount_range'
@@ -209,7 +215,7 @@ class AmountRangeFilter(UnfoldModelAdmin.SimpleListFilter):
 class TransactionAdmin(UnfoldModelAdmin):
     list_display = ('get_description', 'get_user', 'get_account', 'transaction_type', 
                    'get_formatted_amount', 'category', 'date', 'get_balance_after')
-    list_filter = ('transaction_type', 'category', 'date', AmountRangeFilter)
+    listFilter = ("transaction_type", "category", "date", AmountRangeFilter)
     search_fields = ('description', 'account__name', 'account__user__username', 
                     'account__user__email')
     readonly_fields = ('balance_after', 'created_at')
