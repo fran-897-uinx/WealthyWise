@@ -161,6 +161,9 @@
    ======================= */
   .modal-content {
     border-radius: 1rem;
+    background: var(--card);
+    color: var(--text);
+    border: none;
   }
   .form-group {
     margin-bottom: 1rem;
@@ -187,8 +190,9 @@
   }
   .type-card.active {
     border-color: var(--border);
-    background: var(--shadow, rgba(0, 123, 255, 0.1));
-  }
+    background: var(--card, rgba(6, 120, 243, 0.1));
+    box-shadow: 0 4px 12px rgba(2, 25, 49, 0.2);}
+
   .type-card.income:hover {
     border-color: green;
   }
