@@ -223,6 +223,20 @@ def landing(request):
         "year": get_chart_data(user, "year"),
     }
 
+    monthly_income = (
+        Transaction.objects.filter(user=user, transaction_type="income", date__month=timezone.now().month)
+        .aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+    )
+
+    monthly_expenses = (
+        Transaction.objects.filter(user=user, transaction_type="expense", date__month=timezone.now().month)
+        .aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+    )
+
+    net_balance = monthly_income - monthly_expenses
+    savings_progress = (total_balance / Decimal("100000")) * 100  # example goal
+    savings_goal = Decimal("100000")
+    
     # Top categories (example: top 5 expense categories)
     top_categories = (
         Transaction.objects.filter(user=user, transaction_type="expense")
@@ -248,6 +262,18 @@ def landing(request):
         "top_category_json": mark_safe(
             json.dumps(list(top_categories), default=decimal_to_float)
         ),
+        "monthly_income": monthly_income,
+        "monthly_expenses": monthly_expenses,
+        "net_balance": net_balance,
+        "savings_progress": savings_progress,
+        "savings_goal": savings_goal,
+        "income_trend": calculate_trend(monthly_income, 0),  # add prev month logic
+        "expense_trend": calculate_trend(monthly_expenses, 0),
+        "net_cash_flow": monthly_income - monthly_expenses,
+        "emergency_fund_months": calculate_emergency_fund(monthly_expenses, total_balance),
+        "savings_rate": calculate_savings_rate(monthly_income, monthly_expenses),
+        "expenditure_rating": rate_expenditure(monthly_income, monthly_expenses),
+        "top_categories": top_categories,
     }
     return render(request, "base.html", context)
 
