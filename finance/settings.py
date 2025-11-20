@@ -12,6 +12,9 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
 from urllib.parse import urlparse
+import pymysql
+
+pymysql.install_as_MySQLdb()
 
 # ==========================
 # Base & Environment
@@ -149,7 +152,19 @@ DATABASES = {
         }
     }
 }
+DATABASE_URL = os.getenv("DATABASE_URL")
 
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            engine="django.db.backends.mysql",
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+else:
+    print("Using SQLite database.")
 
 # ==========================
 # Password validation
