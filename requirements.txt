@@ -87,3 +87,4 @@ wcwidth==0.2.13
 webauthn==2.7.0
 whitenoise==6.9.0
 YubiOTP==1.0.0
+pymysql
